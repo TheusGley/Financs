@@ -1,0 +1,69 @@
+{%extends 'base.html'%}
+{%load static %}
+
+{%block content%}
+
+<div class='container content'>
+    <h2 class="mb-4 text-center">Receitas do Mês de {{mes_atual}}</h2>
+
+    <div class="card mt-3 h-auto w-auto ">
+      <h5 class="card-header">Receitas</h5>
+      <div class="card-body">
+          <table class="table table-hover" style="border-radius : 10px;">
+              <thead>
+                  <tr class="tr">
+                        <th> </th>
+
+                        <th>Nome </th>
+                        <th>Valor </th>
+                        <th>Data de Entrada </th>
+                        <th> </th>
+
+                    </tr>
+              </thead>
+              <tbody>
+              {%if not receitas  %}
+                  <tr>
+                    <td><strong><small>Nenhuma Receita encontrada para esse mês.</small></strong></td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+
+                  </tr>
+              {%else%} 
+                  {% for dp in receitas %}
+                      <tr>
+                        <td> <a href="{%url 'delete' dp.id %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
+
+                        <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_receita' dp.id %}" >{{dp.nome}}  </a></td>
+                        <td>R$: {{dp.valor}}</td>
+                        <td>{{dp.data_entrada|date:"d/m/Y"}}</td>
+                        <td> </td>
+                      </tr>     
+
+                  {% endfor %}
+              
+           
+            
+            {%endif%}   
+                  
+              </tbody>
+
+          </table>
+          <div class='row'>
+            <div class='col'>
+          
+              <a class="btn btn-primary text-white" href="{%url 'add_receita' request.user.id %}">Adicionar Receita </a>
+            </div>
+           
+            <div class='col-3'>
+              <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'receita_mes' request.user.id num_mes %} ?acao=ante"><i class="bi bi-arrow-left-circle-fill"></i> Mês Anterior  </a>
+              <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'receita_mes' request.user.id num_mes %} ?acao=prox"> Proximo Mês <i class="bi bi-arrow-right-circle-fill"></i> </a>
+            </div> 
+            
+          </div>
+      </div>
+  </div>
+  </div>
+
+{%endblock %}

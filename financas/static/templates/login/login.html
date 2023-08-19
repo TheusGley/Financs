@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <title id="title" class="text-dark"> Login - Financs $</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+   
+
+    <div class="container content mt-4 d-flex justify-content-center align-items-center">
+        <div class="card text-center" style="width: 400px;">
+
+            <form method="post">
+                {% csrf_token %}
+                <h2 class="card-title mt-2 text-dark"> Login - Financs $ </h2>
+
+                <div class="form-group">
+            
+            
+               
+                <label class="font text-dark " for="username">Nome de usuário</label>
+                <div class="pl-5" > 
+                    <input style= "max-width:300px; text-align: center"   class="form-control" type="text" id="username" name="username">
+                </div >
+                <label  class="text-dark font" for="password">Senha</label>
+                <div class="pl-5"   >
+                    <input  style= "max-width:300px;" class="form-control" type="password" id="password" name="password"  aria-labelledby="passwordHelpBlock">
+                </div>
+                  <!-- Resto do formulário aqui -->
+                {%if error_message %}
+                <div class="text-danger"> {{error_message}} </div>
+                {%endif%}
+                </div>
+                <button type="submit" class="btn btn-outline-dark">Entrar</button>
+               
+            </form>
+            <a href="{% url 'email_senha'%}">Esqueceu a Senha ?</button>
+
+        </div>
+    
+    </div>
+</body>
+
+
+{%endblock%}

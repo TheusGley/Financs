@@ -1,0 +1,385 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<head>
+
+
+	
+	<!-- Importar bibliotecas necessárias para o gráfico em pizza -->
+	<style>
+		.chart-container {
+			width: 400px;
+			height: 400px;
+			margin: 0 auto;
+		}
+	</style>
+</head>
+<body>
+    <div class ='container content '>
+        <div class ='row'>
+
+            <div class="col">            
+
+                <div class="card mt-3 h-auto w-auto">
+                    <div class="card-body">
+                        <h5 class="card-title font">Saldo </h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary font">Mês de: {{mes_atual}}  </h6>
+                       
+                        
+                        <button class="btn btn-warning text-white"  data-toggle="modal" data-target="#myModal"> Como funciona ? </button>
+
+                        {% comment %} <a href="#" class="card-link">Another link</a> {% endcomment %}
+                    </div> 
+               </div>
+                    
+                <div class="card mt-3 h-auto w-auto">
+                    <div class="card-body">
+                        <h5 class="card-title font">Receitas </h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary font">Data de hoje: {{mes_atual}} </h6>
+                        <button class="btn btn-warning text-white"  data-toggle="modal" data-target="#myModal2"> Como funciona ? </button>
+
+                        {% comment %} <a href="#" class="card-link">Card link</a>
+                        <a href="#" class="card-link">Another link</a> {% endcomment %}
+                    </div>
+                </div>
+
+                    <div class="card mt-3 h-auto w-auto">
+                        <div class="card-body">
+                            <h5 class="card-title font">Despesas </h5>
+                            <h6 class="card-subtitle mb-2 text-body-secondary font">Mês de: {{mes_atual}}  </h6>
+                            <button class="btn btn-warning text-white"  data-toggle="modal" data-target="#myModal3"> Como funciona ? </button>
+                            {% comment %} <a href="#" class="card-link">Card link</a>
+                            <a href="#" class="card-link">Another link</a> {% endcomment %}
+                        </div>
+                    </div>
+
+
+                    <div class="card mt-3 h-auto w-auto">
+                        <div class="card-body">
+                            <h5 class="card-title font">Cartão de Credito </h5>
+                            <h6 class="card-subtitle mb-2 text-body-secondary font">Data de hoje: {{mes_atual}}  </h6>
+
+                                    <button class="btn btn-warning text-white"  data-toggle="modal" data-target="#myModal4"> Como funciona ? </button>
+                            {% comment %} <a href="#" class="card-link">Card link</a>
+                            <a href="#" class="card-link">Another link</a> {% endcomment %}
+                        </div>
+                    </div>
+
+
+                    
+            </div>
+            
+
+            <div class="col">            
+                <div class="card mt-3 h-auto w-auto">
+                    <h5 class="card-header font">Despesas</h5>
+                    <div class="card-body">
+                        <h5 class="card-title center font">Despesas sobre Receitas</h5>
+                        {% comment %} <p class="card-text">With supporting text below as a natural lead-in to additional content.</p> {% endcomment %}
+                        {% comment %} <a href="#" class="btn btn-primary">Go somewhere</a> {% endcomment %}
+                        
+                            <canvas id="pie-chart"></canvas>
+                            <button class="btn btn-warning text-white"  data-toggle="modal" data-target="#myModal5"> Como funciona ? </button>
+                    </div>
+                </div>
+            </div>
+
+        
+
+            <div class="col">
+                <div class="card mt-3 h-auto w-auto ">
+                    <h5 class="card-header font">Extrato</h5>
+                    <div class="card-body">
+                        <table class="table table-hover" style="border-radius : 10px;">
+                            <thead>
+                                <tr>
+                                    <th class="font" scope="col ">Data</th>
+                                    <th class="font" scope="col">Descrição</th>
+                                    <th class="font" scope="col">Numero ID</th>
+                                    <th class="font" scope="col">Valor</th>
+             
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+              
+                        </table>
+                        <button class="btn btn-warning text-white"  data-toggle="modal" data-target="#myModal6"> Como funciona ? </button>
+                    </div>
+                </div>
+                <div class="card mt-3 h-auto w-auto">
+                    <div class="card-body">
+                        <h5 class="card-title">Cheque Especial </h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary">Mês de: {{mes_atual}}  </h6>
+                        <table class="table table-hover" style="border-radius : 10px;">
+                            <thead class=>
+                                <tr>                      
+                                    <th>Banco </th>
+                                    <th>Limite </th>                    
+                                    <th>Saldo </th>  
+                                    <th>Juros </th>  
+
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                           
+                               
+                            </tbody>
+                            
+            
+                        </table>
+                        <button class="btn btn-warning text-white"  data-toggle="modal" data-target="#myModal7"> Como funciona ? </button>
+                        {% comment %} <a href="#" class="card-link">Card link</a> {% endcomment %}
+                        {% comment %} <a href="#" class="card-link">Another link</a> {% endcomment %}
+                    </div>
+                        {% comment %} <a href="#" class="card-link">Card link</a>
+                        <a href="#" class="card-link">Another link</a> {% endcomment %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+             <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Saldo</h5>
+                <button type="button" class="close " data-dismiss="modal" aria-label="Fechar">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="container"> 
+                    <p> Aqui aparecerá seu saldo conforme o total de receita desse mês menos o total  de despesas neste mesmo mês. </p>
+                    <p class="text-success"> ira mudar de cor se voce estiver com saldo positivo,</p>  <p class ="text-danger"> e o mesmo equivale se estiver com saldo negativo </p>
+                </div>
+                
+             </div>
+            </div>
+            </div>
+        </div>
+
+
+        {% comment %} Modal 2  {% endcomment %}
+
+        <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+             <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Receitas</h5>
+                <button type="button" class="close " data-dismiss="modal" aria-label="Fechar">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="container"> 
+                    <p> Vamos falar de Receita ? </p>
+                    <p> Nesta lacuna voce irá presenciar sua receitas declaradas no mês Atual</p>
+                    <p> Nessas Receitas voce sempre tera uma base de quanto voce esta recebendo neste mês </p>
+                </div>
+                
+             </div>
+            </div>
+            </div>
+        </div>
+
+        {% comment %} Modal 3  {% endcomment %}
+
+        <div class="modal fade" id="myModal3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+             <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Despesas</h5>
+                <button type="button" class="close " data-dismiss="modal" aria-label="Fechar">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="container"> 
+                    <p> Despesa, Gastos e mais gastos!! </p>
+                    <p> Aqui voce tem controle de quanto voce precisa para o mês</p>
+                    <p> O total das suas despesas declaradas aparecerá Aqui </p>
+                </div>
+                
+             </div>
+            </div>
+            </div>
+        </div>
+
+         {% comment %} Modal 4  {% endcomment %}
+
+         <div class="modal fade" id="myModal4" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+             <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">O Vilão, Cartão de Credito!! </h5>
+                <button type="button" class="close " data-dismiss="modal" aria-label="Fechar">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="container"> 
+                   
+                    <p> Neste card terá suas informações de cartão</p>
+                    <p> Voce pode declarar varios cartoes, e seu saldo </p>
+                    <p> Assim voce pode ter o controle da sua fatura do cartão </p>
+                </div>
+                
+             </div>
+            </div>
+            </div>
+
+
+             {% comment %} Modal 5  {% endcomment %}
+
+         <div class="modal fade" id="myModal5" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+             <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">O gráfico </h5>
+                <button type="button" class="close " data-dismiss="modal" aria-label="Fechar">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="container"> 
+                    <p>  Todos gostamos de gráfico então aqui vai um interessante</p>
+                    <p>  Neste gráfico terá o total de sua despesa sobre suas receitas </p>
+                    <p>  Podendo ver o valor real passando o mouse em cima  </p>
+                    <p>  Mas Lembre </p>
+                    <p class="text-danger"> Quanto mais vermelho estiver, mais despesa voce tem</p>
+                    <p class="text-success">E quanto mais verde estiver, mais receitas voce tem </p>
+
+                </div>
+                
+             </div>
+            </div>
+            </div>
+        </div>
+
+
+         {% comment %} Modal 6  {% endcomment %}
+
+         <div class="modal fade" id="myModal6" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+             <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">O gráfico </h5>
+                <button type="button" class="close " data-dismiss="modal" aria-label="Fechar">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="container"> 
+                    <p>  Extrato </p>
+                    <p> O extrato é feito com base o mês atual,  </p>
+                    <p> Suas receitas declaradas </p>
+                    <p> E Suas Depesas pra esse mês </p>
+
+                </div>
+                
+             </div>
+            </div>
+            </div>
+        </div>
+
+         {% comment %} Modal 7  {% endcomment %}
+
+         <div class="modal fade" id="myModal7" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+             <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">O gráfico </h5>
+                <button type="button" class="close " data-dismiss="modal" aria-label="Fechar">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="container"> 
+                    <p>  Cheque Especial </p>
+                    <p> O Cheque especial voce pode declarar com credito de varios bancos a sua escolha..  </p>
+                    <p> Seu limite estará sempre disponivel </p>
+                    <p> </p>
+
+                </div>
+                
+             </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+	<!-- Script para criar o gráfico em pizza -->
+	<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var data = {
+
+                {%if not despesa_total  and receita_total >= 1%}
+
+                 labels: ['Receitas'],
+
+                {%elif not receita_total  and despesa_total  >= 1 %}
+
+                labels: ['Despesas'],
+
+                {% else %}
+
+                labels: ['Despesas', 'Receitas'],
+                {%endif%}
+
+                
+                
+                
+                datasets: [{
+
+                    {%if not despesa_total  and receita_total >= 1%}
+                    data: [{{ receita_total|floatformat:2 }}],
+                            backgroundColor: ['green']
+                        }]
+                    };
+               
+                    {%elif not receita_total  and despesa_total  >= 1 %}
+                    data:[{{  despesa_total|floatformat:2  }}],
+                            backgroundColor: ['red']
+                        }]
+                    };
+                
+                    {% else %}
+                    data:[{{  despesa_total|floatformat:2  }}, {{ receita_total|floatformat:2 }}],
+                            backgroundColor: ['red', 'green']
+                        }]
+                    };
+               
+                        {% endif %}
+                    
+    
+            var ctx = document.getElementById('pie-chart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'pie',
+                data: data,
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Meu Gráfico de Despesas e Receitas',
+                        fontSize: 16,
+                        fontColor: 'black',
+                        fontFamily:'arial black '
+                    },
+                    elements: {
+                        arc: {
+                            borderWidth: 0
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            fontColor: 'black',
+                            fontSize: 12
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+    
+{% endblock content %}
+    

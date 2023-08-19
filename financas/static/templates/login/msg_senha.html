@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <title id="title" class="text-dark"> Recuperação de Senha - Financs $</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+   
+
+    <div class="container  content mt-4 d-flex justify-content-center align-items-center">
+        <div class="card text-center" style="width: 400px;">
+
+                <h2 class="card-title mt-2 text-dark"> Email Enviado  </h2> 
+                </br>
+                <a>Foi enviado um link de recuperação de senha para o seu email </a>
+                <a>Se não estiver na caixa de Entrada </a>
+                <a>Verifique sua Caixa de Spam ou lixeira  </a>
+
+
+            <div class="form-group">
+            
+                <a href="{%url 'login' %}" class="btn btn-outline-dark mt-3">Fazer Login</a>
+            </div>
+
+               
+        </div>
+    
+    </div>
+</body>
+
+
+{%endblock%} 
+

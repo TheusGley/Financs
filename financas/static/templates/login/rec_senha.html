@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <title id="title" class="text-dark"> Recuperação de Senha - Financs $</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+   
+
+    <div class="content container mt-4 d-flex justify-content-center align-items-center">
+        <div class="card text-center" style="width: 400px;">
+
+            <form method="post">
+                {% csrf_token %}
+                <h2 class="card-title mt-2 text-dark"> Recuperação Senha </h2>
+
+                <div class="form-group">
+            
+            
+              
+                <label  class="font" for="password">Nova Senha</label>
+                <div class="pl-5"   >
+                    <input  style= "max-width:300px;" class="form-control input" type="password" id="password" required name="password"  aria-labelledby="passwordHelpBlock">
+                   
+                </div>
+                <label  class="font" for="password">Confirme sua senha</label>
+                <div class="pl-5"   >
+                   <input style= "max-width:300px;" class="form-control input" type="password" name="senha1" required id="senha1" required onblur="validarSenha()"  aria-labelledby="passwordHelpBlock">
+                   <div class="me-1-0 text-danger" id="meuElemento"></div>
+                </div>
+               
+               
+                  <!-- Resto do formulário aqui -->
+                {%if error_message %}
+                <div class="text-danger"> {{error_message}} </div>
+                {%endif%}
+                </div>
+                <button type="submit" class="btn btn-outline-dark">Enviar</button>
+               
+            </form>
+        </div>
+    
+    </div>
+</body>
+
+<script>
+
+    function validarSenha(name1, name2)
+{
+    var senha1 = document.getElementById("password").value;
+    var senha2 = document.getElementById("senha1").value;
+		
+    if (senha1 === senha2)
+    {
+        var meuElemento = document.getElementById("meuElemento");
+        meuElemento.textContent = " ";
+       
+    }
+    else
+    {
+        var meuElemento = document.getElementById("meuElemento");
+        meuElemento.textContent = "As senhas estão diferentes";
+    }
+}
+  </script>
+
+
+{%endblock%} 
+

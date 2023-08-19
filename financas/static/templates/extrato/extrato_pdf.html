@@ -1,0 +1,73 @@
+{% load static %}
+
+{% block content %}
+<meta charset="UTF-8">
+<html lang="en">
+<div class="container mt-4 content">
+    <div class="card">
+        <div class="card-header">
+            <div class="row justify-content-end">
+                <div class="col-9">
+                    <h3 class="ms-2"> Cliente - Conta Atual </h3>
+                </div>
+                <div class="col-3">
+                    <i style="font-size:24px; margin-left:48%" class="bi bi-bank"> Financs $ </i>
+                </div>
+            </div>
+        </div>
+        <div class="row ms-2">
+            {% if request.user.id %}
+            <table>
+                <tr>
+                    <td><p class="text-dark mt-2">Digito Conta: {{ user.id }}</p></td>
+                </tr>
+                <tr>
+                    <td><p class="text-dark"> Nome: {{ user }} </p></td>
+                </tr>
+                <tr>
+                    <td><p class="text-dark"> Data do extrato : {{ data_atual|date:"d/m/Y" }} </p><td>
+                </tr>
+            </table>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <h5 class="mb-1">Lançamentos</h5>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Data</th>
+                        <th scope="col">Descrição</th>
+                        <th scope="col">Numero ID</th>
+                        <th scope="col">Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rs in resultados %}
+                    {% if rs.dp_rc == "Despesa" %}
+                    <tr class="text-danger">
+                        <td>{{ rs.data_entrada|date:"d/m/Y" }}</td>
+                        <td>{{ rs.nome }}</td>
+                        <td>{{ rs.id }}</td>
+                        <td>-{{ rs.valor }}</td>
+                    </tr>
+                    {% else %}
+                    <tr class="text-success">
+                        <td>{{ rs.data_entrada|date:"d/m/Y" }}</td>
+                        <td>{{ rs.nome }}</td>
+                        <td>{{ rs.id }}</td>
+                        <td>{{ rs.valor }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    <tr>
+                        <td>{{ data_atual|date:"d/m/Y" }}</td>
+                        <td>SALDO</td>
+                        <td></td>
+                        <td>{{ saldo }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

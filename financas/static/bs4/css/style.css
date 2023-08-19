@@ -1,0 +1,30 @@
+
+.nav-item , #title {
+			font-family: 'Alfa Slab One', cursive !important;
+		}  
+
+
+h2,h5, h3  #font{
+    font-family: 'Asap Condensed', sans-serif;
+		} 
+
+td, p, label {
+    font-family: 'Asap Condensed', sans-serif;
+}
+ a, button , .input  {
+    font-family: 'Signika', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%; /* Apenas para simular um conteúdo longo */
+    position: relative; /* Necessário para o posicionamento do rodapé */
+  }
+  .content {
+    padding-bottom: 50px; /* Espaço para o rodapé */
+  }
+  span { 
+    font-family:'Times New Roman', Times, serif;
+  }
+  

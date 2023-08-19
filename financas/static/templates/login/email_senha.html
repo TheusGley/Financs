@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <title id="title" class="text-dark"> Login - Financs $</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+   
+
+    <div class="container mt-4 d-flex justify-content-center align-items-center">
+        <div class="card text-center" style="width: 400px;">
+
+            <form method="post">
+                {% csrf_token %}
+                <h2 class="card-title mt-2 text-dark"> Email do Usuario </h2>
+
+                <div class="form-group">
+            
+            
+               
+                <label class="font text-dark " for="username">Digite seu email cadastrado.</label></br>
+                <a>Um email de recuperação de senha sera enviado!</a>
+
+                <div class="pl-5" > 
+                    <input style= "max-width:300px; text-align: center"   class="form-control mt-2" type="email" id="email" name="email">
+                </div >
+                
+                  <!-- Resto do formulário aqui -->
+                {%if error_message %}
+                <div class="text-danger"> {{error_message}} </div>
+                {%endif%}
+                </div>
+                <button type="submit" class="btn btn-outline-dark">Enviar</button>
+               
+            </form>
+
+        </div>
+    
+    </div>
+</body>
+
+
+{%endblock%}

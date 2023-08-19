@@ -1,0 +1,151 @@
+{%extends 'base.html'%}
+{%load static %}
+
+{%block content%}
+
+<div class='container content'>
+    <h2 class="mb-4 text-center">Despesa do Mês de {{mes_atual}}</h2>
+
+    <div class="card mt-3 h-auto w-auto ">
+      <h5 class="card-header">Despesas</h5>
+      <div class="card-body">
+          <table class="table table-hover" style="border-radius : 10px;">
+              <thead>
+                  <tr class="tr">
+                        <th> </th>
+
+                        <th>Nome </th>
+                        <th>Valor </th>
+                        <th>Prioridade </th>
+                        <th>Data de Vencimento </th>
+                        <th>Parcelas </th>
+                        <th>Status </th>
+                        <th> </th>
+
+                    </tr>
+              </thead>
+              <tbody>
+              {%if despesas is not None %}
+                  {% for dp in despesas %}
+                    {% if dp.prioridade == 'Alta Prioridade' %}
+                      <tr>
+                        <td> <a href="{%url 'delete' dp.id %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
+
+                        <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_despesa' dp.id %}" >{{dp.nome}}  </a></td>
+                        <td>R$: {{dp.valor}}</td>
+                        {% if dp.prioridade == "Alta Prioridade"%}
+                              <td class="text-danger"><strong><small>{{dp.prioridade}}</small></strong></td>
+                        {%else %}
+                              <td><small>{{dp.prioridade}}</small></td>
+                        {%endif%}
+                        <td>{{dp.data_vencimento|date:"d/m/Y"}}</td>
+                        {% if dp.parcela is None %}
+                              <td>ㅤㅤ0</td>
+                        {% else %}
+                          <td><td>{{dp.parcela}} </td></td>
+                        {% endif %}
+                        {% if dp.status == "Pago" %}
+                          <td class="text-success"><strong><small> {{dp.status}}</small></strong></td>
+                        {% elif dp.status == "Pendente"%}
+                          <td class="text-warning"><small>{{ dp.status }}</small></td>
+                        {% elif dp.status == "Vencida"%}
+                          <td class="text-danger"><strong><small>{{dp.status}}</small></strong></td>
+                        {% endif %}
+                        {% if dp.status == "Pendente" %}
+                              <td> <a href="{%url 'paguei' dp.id%}" class='btn btn-success text-text-lowercase'>Paguei</a> </td>
+                        {%elif dp.status == "Vencida" %}
+                            <td> <a href="{%url 'atualizar_despesa' dp.id %}" class='btn btn-danger text-text-lowercase'>Alterar  </a> </td>
+                        {%else%}
+                            <td> ㅤ </td>
+                        {%endif%}
+                      </tr>     
+                    {%endif%}
+
+                  {% endfor %}
+              
+                    {% for dp in despesas %}
+                      {% if dp.prioridade == 'Media Prioridade' %}
+                        <tr>
+                          <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_despesa' dp.id %}" >{{dp.nome}}  </a></td>
+                          <td>R$: {{dp.valor}}</td>
+                          {% if dp.prioridade == "Media Prioridade"%}
+                                <td class="text-warning"><strong><small>{{dp.prioridade}}</small></strong></td>
+                          {%else %}
+                                <td><small>{{dp.prioridade}}</small></td>
+                          {%endif%}
+                          <td>{{dp.data_vencimento|date:"d/m/Y"}}</td>
+                          {% if dp.parcela is None %}
+                                <td>ㅤㅤ0</td>
+                          {% else %}
+                            <td><td>{{dp.parcela}} </td></td>
+                          {% endif %}
+                          {% if dp.status == "Pago" %}
+                            <td class="text-success"><strong><small> {{dp.status}}</small></strong></td>
+                          {% elif dp.status == "Pendente"%}
+                            <td class="text-warning"><small>{{ dp.status }}</small></td>
+                          {% elif dp.status == "Vencida"%}
+                            <td class="text-danger"><strong><small>{{dp.status}}</small></strong></td>
+                          {% endif %}
+                          {% if dp.status == "Pendente" %}
+                                <td> <a href="{%url 'paguei' dp.id%}" class='btn btn-success text-text-lowercase'>Paguei</a> </td>
+                          {%elif dp.status == "Vencida" %}
+                              <td> <a href="{%url 'atualizar_despesa' dp.id %}" class='btn btn-danger text-text-lowercase'>Alterar  </a> </td>
+                          {%else%}
+                              <td> ㅤ </td>
+        
+                          {%endif%}
+                        </tr>   
+                     {% endif %}
+                    {% endfor %}
+                    {% for dp in despesas %}
+                      {% if dp.prioridade == 'Baixa Prioridade' %}
+                        <tr>
+                          <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_despesa' dp.id %}" >{{dp.nome}}  </a></td>
+                          <td>R$: {{dp.valor}}</td>
+                          {% if dp.prioridade == "Baixa Prioridade"%}
+                                <td class="text-info"><strong><small>{{dp.prioridade}}</small></strong></td>
+                          {%else %}
+                                <td><small>{{dp.prioridade}}</small></td>
+                          {%endif%}
+                          <td>{{dp.data_vencimento|date:"d/m/Y"}}</td>
+                          {% if dp.parcela is None %}
+                                <td>ㅤㅤ0</td>
+                          {% else %}
+                            <td><td>{{dp.parcela}} </td></td>
+                          {% endif %}
+                          {% if dp.status == "Pago" %}
+                            <td class="text-success"><strong><small> {{dp.status}}</small></strong></td>
+                          {% elif dp.status == "Pendente"%}
+                            <td class="text-warning"><small>{{ dp.status }}</small></td>
+                          {% elif dp.status == "Vencida"%}
+                            <td class="text-danger"><strong><small>{{dp.status}}</small></strong></td>
+                          {% endif %}
+                          {% if dp.status == "Pendente" %}
+                                <td> <a href="{%url 'paguei' dp.id%}" class='btn btn-success text-text-lowercase'>Paguei</a> </td>
+                          {%elif dp.status == "Vencida" %}
+                              <td> <a href="{%url 'atualizar_despesa' dp.id %}" class='btn btn-danger text-text-lowercase'>Alterar  </a> </td>
+                          {%else%}
+                            <td> ㅤ </td>
+      
+                          {%endif%}
+                        </tr>   
+                     {% endif %}
+                    {% endfor %}
+          
+
+            {%else%} 
+              <tr>
+                  <td><strong><small>Nenhuma Despesa encontrada para esse mês.</small></strong></td>
+              </tr>
+            {%endif%}   
+                  
+              </tbody>
+
+          </table>
+          <a class="btn btn-primary text-white" href="{%url 'add_despesa' request.user.id %}">Adicionar Despesa </a>
+
+      </div>
+  </div>
+  </div>
+
+{%endblock %}

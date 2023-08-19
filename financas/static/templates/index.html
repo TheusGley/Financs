@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<head>
+
+
+	
+	<!-- Importar bibliotecas necessárias para o gráfico em pizza -->
+	<style>
+		.chart-container {
+			width: 29%;
+			height: 29%;
+			margin: 0 auto;
+		}
+	</style>
+</head>
+<body>
+    <div class ='container content'>
+        <div class ='row'>
+
+            <div class="col">            
+
+                <div class="card mt-3 h-auto w-auto">
+                    <div class="card-body">
+                        <h5 class="card-title font">Saldo </h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary font">Mês de: {{mes_atual}}  </h6>
+                       
+                    {%if saldo_total  >=  0  %}
+
+                        <p class="card-text text-success font"><strong>R$: {{saldo_format}}</strong></p>
+                    {%else %}
+                        <p class="card-text text-danger font"><strong>R$: {{saldo_format}}</strong></p>
+                    {%endif%}
+
+                        {% comment %} <a href="#" class="card-link">Card link</a> {% endcomment %}
+                        {% comment %} <a href="#" class="card-link">Another link</a> {% endcomment %}
+                    </div> 
+               </div>
+                    
+                <div class="card mt-3 ">
+                    <div class="card-body">
+                        <h5 class="card-title font">Receitas </h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary font">Data de hoje: {{mes_atual}} </h6>
+                        <p class="card-text text-success font"> <strong> R$: {{receita_total|floatformat:2}}</strong></p>
+                        {% comment %} <a href="#" class="card-link">Card link</a>
+                        <a href="#" class="card-link">Another link</a> {% endcomment %}
+                    </div>
+                </div>
+
+                    <div class="card mt-3 ">
+                        <div class="card-body">
+                            <h5 class="card-title font">Despesas </h5>
+                            <h6 class="card-subtitle mb-2 text-body-secondary font">Mês de: {{mes_atual}}  </h6>
+                            <p class="card-text text-danger font"> <strong>R$: {{ despesa_total|floatformat:2 }} </strong></p>
+                            {% comment %} <a href="#" class="card-link">Card link</a>
+                            <a href="#" class="card-link">Another link</a> {% endcomment %}
+                        </div>
+                    </div>
+
+
+                    <div class="card mt-3 =">
+                        <div class="card-body">
+                            <h5 class="card-title font">Cartão de Credito </h5>
+                            <h6 class="card-subtitle mb-2 text-body-secondary font">Data de hoje: {{mes_atual}}  </h6>
+                            {%if total_credito >= 0  %}
+
+                                <p class="card-text text-success font"><strong>R$: {{saldo_credito|floatformat:2}}</strong></p>
+                            {%else %}
+                                <p class="card-text text-danger font"><strong>R$: {{saldo_credito|floatformat:2}}</strong></p>
+                            {%endif%}
+                            {% comment %} <a href="#" class="card-link">Card link</a>
+                            <a href="#" class="card-link">Another link</a> {% endcomment %}
+                        </div>
+                    </div>
+
+
+                    
+            </div>
+            
+
+            <div class="col">            
+                <div class="card mt-3 ">
+                    <h5 class="card-header font">Despesas</h5>
+                    <div class="card-body">
+                        <h5 class="card-title center font">Despesas sobre Receitas</h5>
+                        {% comment %} <p class="card-text">With supporting text below as a natural lead-in to additional content.</p> {% endcomment %}
+                        {% comment %} <a href="#" class="btn btn-primary">Go somewhere</a> {% endcomment %}
+                        
+                            <canvas id="pie-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        
+
+            <div class="col">
+                <div class="card mt-3 ">
+                    <h5 class="card-header font">Extrato</h5>
+                    <div class="card-body">
+                        <table class="table table-hover" style="border-radius : 10px;">
+                            <thead>
+                                <tr>
+                                    <th class="font" scope="col ">Data</th>
+                                    <th class="font" scope="col">Descrição</th>
+                                    <th class="font" scope="col">Numero ID</th>
+                                    <th class="font" scope="col">Valor</th>
+             
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {%if  not resultados %}
+                            
+                            <tr>
+                                <td><strong><small>Nenhum </small></strong></td>
+                                <td><strong>Extrato </small></strong></td>
+                                <td><strong> Para </small></strong></td>
+                                <td><strong>este mês. </small></strong></td>
+                            </tr>
+                            {%else%}
+                            {% for rs in resultados %}
+                            <tr>
+                                {% if rs.dp_rc == "Despesa" %}
+                                <td class="text-danger">{{ rs.data_entrada|date:"d/m/Y" }}</td>
+                                <td class="text-danger">{{ rs.nome }}</td>
+                                <td class="text-danger">{{ rs.id }}</td>
+                                <td class="text-danger text-right">-{{ rs.valor }}</td>
+                                {% else %}
+                                <td class="text-success">{{ rs.data_entrada|date:"d/m/Y" }}</td>
+                                <td class="text-success">{{ rs.nome }}</td>
+                                <td class="text-success">{{ rs.id }}</td>
+                                <td class="text-success text-right">{{ rs.valor }}</td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                                
+                            {%endif%}
+
+
+
+
+                                
+                                
+                            </tbody>
+              
+                        </table>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Cheque Especial </h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary">Mês de: {{mes_atual}}  </h6>
+                        <table class="table table-hover" style="border-radius : 10px;">
+                            <thead class=>
+                                <tr>                      
+                                    <th>Banco </th>
+                                    <th>Limite </th>                    
+                                    <th>Saldo </th>  
+                                    <th>Juros </th>  
+
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {%for c in cheques %}
+                    
+                                <tr> 
+                                    <td>{{c.banco}}</td>
+                                    <td>{{c.limite}}</td>  
+                                    <td>{{c.saldo_cheque}}</td>
+                                    <td>{{c.juros}} %</td>  
+
+
+                                </tr>
+                             {%endfor%} 	
+                               
+                            </tbody>
+            
+                        </table>
+                        {% comment %} <a href="#" class="card-link">Card link</a> {% endcomment %}
+                        {% comment %} <a href="#" class="card-link">Another link</a> {% endcomment %}
+                    </div>
+                        {% comment %} <a href="#" class="card-link">Card link</a>
+                        <a href="#" class="card-link">Another link</a> {% endcomment %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+	<!-- Script para criar o gráfico em pizza -->
+	<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var data = {
+
+                {%if not despesa_total  and receita_total >= 1%}
+
+                 labels: ['Receitas'],
+
+                {%elif not receita_total  and despesa_total  >= 1 %}
+
+                labels: ['Despesas'],
+
+                {% else %}
+
+                labels: ['Despesas', 'Receitas'],
+                {%endif%}
+
+                
+                
+                
+                datasets: [{
+
+                    {%if not despesa_total  and receita_total >= 1%}
+                    data: [{{ receita_total|floatformat:2 }}],
+                            backgroundColor: ['green']
+                        }]
+                    };
+               
+                    {%elif not receita_total  and despesa_total  >= 1 %}
+                    data:[{{  despesa_total|floatformat:2  }}],
+                            backgroundColor: ['red']
+                        }]
+                    };
+                
+                    {% else %}
+                    data:[{{  despesa_total|floatformat:2  }}, {{ receita_total|floatformat:2 }}],
+                            backgroundColor: ['red', 'green']
+                        }]
+                    };
+               
+                        {% endif %}
+                    
+    
+            var ctx = document.getElementById('pie-chart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'pie',
+                data: data,
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Meu Gráfico de Despesas e Receitas',
+                        fontSize: 16,
+                        fontColor: 'black',
+                        fontFamily:'arial black '
+                    },
+                    elements: {
+                        arc: {
+                            borderWidth: 0
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            fontColor: 'black',
+                            fontSize: 12
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+    
+{% endblock content %}
+    

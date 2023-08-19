@@ -1,0 +1,295 @@
+    {% extends 'base.html' %}
+    {% load static %}
+
+    {% block content %}
+    <head>
+        
+        <!-- Importar bibliotecas necessárias para o gráfico em pizza -->
+        <style>
+            .chart-container {
+                width: 400px;
+                height: 400px;
+                margin: 0 auto;
+            }
+      
+        
+        </style>
+    </head>
+    <body>
+        <div class ='container content'>
+            <div class ='row'>
+
+                <div class="col">            
+
+                    <div class="card mt-3 h-auto w-auto">
+                        <div class="card-body">
+                            <h5 class="card-title">Saldo Atual  </h5>
+                            <h6 class="card-subtitle mb-2 text-body-secondary">Mês de: {{mes_atual}}  </h6>
+                        {%if saldo_total >= 1  %}
+
+                            <p class="card-text text-success"><strong>R$: {{saldo_format}}</strong></p>
+                        {%else %}
+                        <p class="card-text text-danger"><strong>R$: {{saldo_format}}</strong></p>
+                        {%endif%}
+
+                        {% comment %} <a href="#" class="card-link">Card link</a> {% endcomment %}
+                        {% comment %} <a href="#" class="card-link">Another link</a> {% endcomment %}
+                    </div>
+               </div>
+
+                <div class="card mt-3 h-auto w-auto">
+                        <div class="card-body">
+                                <h5 class="card-title">Cartão de Credito  </h5>
+                                <h6 class="card-subtitle mb-2 text-body-secondary">Mês de: {{mes_atual}}  </h6>
+                                <table class="table table-hover" style="border-radius : 10px;">
+                                    <thead class=>
+                                        <tr>                      
+                                            <th>Marca </th>
+                                            <th>Saldo </th>
+                                            <th>Limite </th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {%for p in cartoes %}
+                            
+                                        <tr> 
+                                        <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_cartao' p.id %}" >{{p.Marca}}  </a></td>
+                                            <td>{{p.saldo_cartao}}</td>  
+                                            <td>{{p.limite}}</td>  
+                                            
+                                        </tr>
+                                     {%endfor%} 	
+                                       
+                                    </tbody>
+                    
+                                </table>
+                        </div>
+                        <div class='row m-lg-2  '>
+                                <div class='col px-lg-5'>
+                                <button class="btn btn-danger text-white  px-lg-5"  data-toggle="modal" data-target="#myModal"> Adicionar Cartão </button>
+
+                        </div>
+                        </div>
+                    </div>   
+                </div>
+
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="myModalLabel">Adicionando Crédito</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                            </div>
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                            <div class ='p-1'>
+                                {{form_cartao.as_p}}
+                            </div>
+
+                            <div class ='p-1'>
+                            <button type="submit" class="btn btn-primary text-white" >Adicionar Crédito </button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                            </div>
+                            </form>
+                            
+                        </div>
+                        </div>
+                        </div>
+                    </div>
+
+
+                  
+            
+            
+
+                <div class="col">            
+                    <div class="card mt-3 h-auto w-auto">
+                        <h5 class="card-header">Saldo Gráfico.</h5>
+                        <div class="card-body">
+                            <h5 class="card-title center">Saldo, Credito, Cheque Esp. </h5>
+                            {% comment %} <p class="card-text">With supporting text below as a natural lead-in to additional content.</p> {% endcomment %}
+                            {% comment %} <a href="#" class="btn btn-primary">Go somewhere</a> {% endcomment %}
+                            
+                                <canvas id="pie-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+        
+
+                <div class="col">
+                    <div class="card mt-3 h-auto w-auto ">
+                        <h5 class="card-header">Receitas</h5>
+                        <div class="card-body">
+                            <table class="table table-hover" style="border-radius : 10px;">
+                                <thead class=>
+                                    <tr>               
+                                        <th>Id</th>
+                                        <th>Nome </th>
+                                        <th >Valor </th>
+                                        <th >Data Entrada </th>
+
+                
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {%if  not receitas %}
+                                
+                                <tr>
+                                    <td><strong><small>Nenhuma </small></strong></td>
+                                    <td><strong>Receita </small></strong></td>
+                                    <td><strong> encontrada </small></strong></td>
+                                    <td><strong>neste  </small></strong></td>
+                                    <td><strong> mês. </small></strong></td>
+                                </tr>
+                                {%else%}
+                                    {% for rc in receitas %}
+                    
+                                        <tr>
+                                            <td><strong><small>{{rc.id}}</small></strong></td>
+                                            <td><strong><small>{{rc.nome}}</small></strong></td>
+                                            <td><strong><small>R${{rc.valor}}</small></strong></td>
+                                            <td><strong><small>{{rc.data_entrada|date:"d/m/Y"}}</small></strong></td>
+                                        </tr>
+                                    {% endfor %}
+                                  
+                                    {%endif%}
+
+
+                                    
+                                    
+                                </tbody>
+                
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3 h-auto w-auto">
+                        <div class="card-body">
+                            <h5 class="card-title">Cheque Especial </h5>
+                            <h6 class="card-subtitle mb-2 text-body-secondary">Mês de: {{mes_atual}}  </h6>
+                            <table class="table table-hover" style="border-radius : 10px;">
+                                <thead class=>
+                                    <tr>                      
+                                        <th>Banco </th>
+                                        <th>Limite </th>                    
+                                        <th>Saldo </th>  
+                                        <th>Juros </th>  
+                                        
+
+
+
+                                    </tr>
+                                    <tr> Total: </tr>
+                                </thead>
+                                <tbody>
+                                    {%for c in cheques %}
+                            
+                                        <tr> 
+                                            <td>{{c.banco}}</td>
+                                            <td>{{c.limite}}</td>  
+                                            <td>{{c.saldo_cheque}}</td>
+                                            <td>{{c.juros}} %</td> 
+                                            
+
+
+
+                                        </tr>
+                                    {%endfor%} 
+                                <td> <strong> Total: </strong></td>
+                                <td></td>
+                                <td> {{total_cheque|floatformat:2}} </td> 	
+                                <td> </td> 
+                                 
+
+                                   
+                                </tbody>
+                
+                            </table>
+                            {% comment %} <a href="#" class="card-link">Card link</a> {% endcomment %}
+                            {% comment %} <a href="#" class="card-link">Another link</a> {% endcomment %}
+                        </div>
+                        <div class='row  px-lg-5 '>
+                            <div class='col px-lg-5 mb-2'>
+                            <a class="btn btn-primary text-white  px-lg-5" href="{%url 'add_cheque'  request.user.id%}" >Adicionar Cheque  </a>
+
+                    </div>
+                    </div>    
+                    </div>
+                  
+                        </div>
+                        </div>
+                    </div>
+            
+                </div>
+
+            </div>
+        </div>
+
+	<!-- Script para criar o gráfico em pizza -->
+	<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var data = {
+                labels: ['Saldo', 'Cartão de Crédito', 'Cheque Especial '],
+                datasets: [{
+                    data: [
+                    {{ saldo_format|floatformat:2 }}, 
+                    {{ saldo_credito|floatformat:1  }},
+                    {{ total_cheque|floatformat:2  }}],
+
+                    {%if saldo_total >= 1  %}
+                    
+
+                    
+                     backgroundColor: ['green', 'blue','yellow']
+                    {% else %}
+                     backgroundColor: ['red', 'blue','yellow']
+
+                     {%endif%}
+                }]
+            };
+    
+            var ctx = document.getElementById('pie-chart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'pie',
+                data: data,
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Gráfico de Saldo',
+                        fontSize: 16,
+                        fontColor: 'black',
+                        fontFamily:'arial black '
+                    },
+                    elements: {
+                        arc: {
+                            borderWidth: 0
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            fontColor: 'black',
+                            fontSize: 12
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+    <!-- CSS do Bootstrap -->
+
+<!-- Scripts do jQuery e do Bootstrap -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+{% endblock content %}
+    

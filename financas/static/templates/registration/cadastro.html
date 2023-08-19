@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<script src="{% static 'custom.js'%}" > </script>
+
+
+
+    <title>Login - Financs $</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+
+    <div class="container content mt-4 d-flex justify-content-center align-items-center">
+        <div class="card text-center" style="width: 400px;">
+
+            <form method="post">
+                {% csrf_token %}
+                <h2 class="card-title mt-2 text-dark"> Faça seu cadastro no Financs $ </h2>
+
+                <div class="form-group">
+            
+            
+               
+                <label  for="username">Nome de usuário</label>
+                <div class="pl-5" > 
+                    <input style= "max-width:300px; text-align: center"   class="form-control input" type="text" id="nome_usuario" required name="nome_usuario">
+                </div >
+                <label  class="font" for="email">email</label>
+                <div class="pl-5"   >
+                    <input  style= "max-width:300px;" class="form-control input" type="email" id="email_usuario" required name="email_usuario" >
+                   
+                </div>
+                <label  class="font" for="password">Senha</label>
+                <div class="pl-5"   >
+                    <input  style= "max-width:300px;" class="form-control input" type="password" id="senha_usuario" required name="senha_usuario"  aria-labelledby="passwordHelpBlock">
+                   
+                </div>
+                <label  class="font" for="password">Confirme sua senha</label>
+                <div class="pl-5"   >
+                   <input style= "max-width:300px;" class="form-control input" type="password" name="senha_usuario2" required id="senha_usuario2" required size="10" maxlength="10" onblur="validarSenha()"  aria-labelledby="passwordHelpBlock">
+                   <div class="me-1-0 text-danger" id="meuElemento"></div>
+                </div>
+                  <!-- Resto do formulário aqui -->
+                   
+                </div>
+                
+                <button type="submit" class="btn btn-outline-dark">Entrar</button>
+               
+            </form>
+        </div>
+    
+    </div>
+</body>
+
+<script>
+
+    function validarSenha(name1, name2)
+{
+    var senha1 = document.getElementById("senha_usuario").value;
+    var senha2 = document.getElementById("senha_usuario2").value;
+		
+    if (senha1 != "" && senha2 != "" && senha1 === senha2)
+    {
+       
+    }
+    else
+    {
+        var meuElemento = document.getElementById("meuElemento");
+        meuElemento.textContent = "As senhas estão diferentes";
+    }
+}
+  </script>
+
+{%endblock%}
