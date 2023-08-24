@@ -1,0 +1,46 @@
+{%extends 'base.html'%}
+
+{%block content %}
+<h2 class=" text-center">Adicionar uma Compra</h2>
+<div class='col content'>
+  <div class='container mt-4 mb-5  d-flex justify-content-center align-items-center'>
+
+      <div class="card mt-3" style="width:400px">
+        <h5 class="card-header text-center">Compras</h5>
+        <div class="card-body ">
+      
+                  <form method="post">
+                      {% csrf_token %}
+                      
+                
+                      {% comment %} <h2 class="card-title mt-2 text-primary"> Login - Financs $ </h2> {% endcomment %}
+      
+                      <div class="form-group ">
+                        <select class="form-control  mb-2 " style="margin-left: 10%; width:250px" name="opcao_selecionada" id="opcao_selecionada">
+                          {%for c in cartao%}
+
+                          <option value="{{c.Marca}}">{{c.Marca}} </option>
+
+                          {%endfor%}
+                        </select>
+                      </div>
+                  
+                  
+                    {{form.as_p}}
+                  <button type="submit" class="ms-5 btn btn-primary text-white" >Adicionar Compra </button>
+                  <a href="{%url 'cartoes' request.user.id %}" class="btn btn-danger text-white" >Cancelar</a>
+
+                  </form>
+                  
+          
+        
+
+        </div>
+      </div>
+  </div>
+</div>
+
+
+
+
+{%endblock%}

@@ -39,7 +39,7 @@
                   {% for dp in despesas %}
                     {% if dp.prioridade == 'Alta Prioridade' %}
                       <tr>
-                       <td> <a href="{%url 'delete' dp.id %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
+                       <td> <a href="{%url 'delete' dp.id 'despesa' %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
 
                         <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_despesa' dp.id %}" >{{dp.nome}}  </a></td>
                         <td>R$: {{dp.valor}}</td>
@@ -76,7 +76,7 @@
                     {% for dp in despesas %}
                       {% if dp.prioridade == 'Media Prioridade' %}
                         <tr>
-                          <td> <a href="{%url 'delete' dp.id %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
+                          <td> <a href="{%url 'delete' dp.id 'despesa' %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
 
                           <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_despesa' dp.id %}" >{{dp.nome}}  </a></td>
                           <td>R$: {{dp.valor}}</td>
@@ -112,7 +112,7 @@
                     {% for dp in despesas %}
                       {% if dp.prioridade == 'Baixa Prioridade' %}
                         <tr>
-                          <td> <a href="{%url 'delete' dp.id %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
+                          <td> <a href="{%url 'delete' dp.id 'despesa' %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
 
                           <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_despesa' dp.id %}" >{{dp.nome}}  </a></td>
                           <td>R$: {{dp.valor}}</td>

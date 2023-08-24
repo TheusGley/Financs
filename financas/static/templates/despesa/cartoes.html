@@ -1,139 +1,207 @@
-{%extends 'base.html'%}
-{%load static %}
+{% extends 'base.html' %}
+{% load static %}
 
-{%block content%}
+{% block content %}
+<div class="container mt-4 text-center">
+    <div class="row">
+        <div class="col-md-4">
+            <h2 class="text-center">Cartão de Crédito</h2>
+                <div class="card mt-3">
+                <h4 class="card-title mt-3 text-center ">Mês de: {{mes_atual}}     </h4>
 
+                    <table class="table table-hover" style="border-radius : 10px;">
+                        <thead class=>
+                            <tr>                      
+                                <th>Marca </th>
+                                <th>Saldo </th>
+                                <th>Limite </th>
 
-<div class ='container mt-4 d-flex justify-content-center align-items-center'>
-    <div class ='row'>
-
-        <div class="col">            
-
-            <div class="card mt-3 ">
-                <div class="card-body">
-                        <h5 class="card-title">Compras no Cartão   </h5>
-                        <h6 class="card-subtitle mb-2 text-body-secondary">Mês de: {{mes_atual}}  </h6>
-                        <table class="table table-hover" style="border-radius : 10px;">
-                            <thead class=>
-                                <tr>                      
-                                    <th>Nome </th>
-                                    <th>Valor </th>
-                                    <th>Data </th>
-
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {%for c in cartao_obj %}
-                    
-                                <tr> 
-                                {% comment %} <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url '' p.id %}" >{{c.nome}}  </a></td> {% endcomment %}
-                                    <td>{{c.valor}}</td>  
-                                    <td>{{c.data}}</td>  
-                                    <td>{{c.data}}</td>  
-
-                                    
-                                </tr>
-                            {%endfor%} 	
-                            
-                            </tbody>
-            
-                        </table>
-                </div>
-                <div class='row m-lg-2  '>
-                    {%for c in cartao_obj %}
-
-                    <p> Saldo: {{cartao_obj.cartao.saldo}} <p>
-                    {%endfor%} 	
-
-
-                        <div class='col px-lg-5'>
-                        <button class="btn btn-danger text-white  px-lg-5"  data-toggle="modal" data-target="#myModal"> Adicionar Compra </button>
-
-                        </div>
-                </div>
-             </div>
-
-       </div>
-
-        {% comment %} <div class="col">            
-
-            <div class="card mt-3 ">
-                    <div class="card-body">
-                            <h5 class="card-title">Compras no Cartão  </h5>
-                            <h6 class="card-subtitle mb-2 text-body-secondary">Mês de: {{mes_atual}}  </h6>
-                            <table class="table table-hover" style="border-radius : 10px;">
-                                <thead>
-                                    <tr>                      
-                                        <th>Nome </th>
-                                        <th>Valor </th>
-                                        <th>Data </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                {%for p in cartoes %}
-                        
-                                    <tr> 
-                                    <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_cartao' p.id %}" >{{c.nome}}  </a></td>
-                                        <td>{{p.saldo_cartao}}</td>  
-                                        <td>{{p.limite}}</td>  
-                                        <td> a </td>
-                                        
-                                    </tr>
-                                {%endfor%} 	
-                                
-                                </tbody>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {%for c in cartao_obj %}
                 
-                            </table>
+                            <tr> 
+                            <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_cartao' c.id %}" >{{c.Marca}}  </a></td>
+                                <td>{{c.saldo_cartao}}</td>  
+                                <td>{{c.limite}}</td>  
+                                
+                            </tr>
+                         {%endfor%} 	
+                           
+                        </tbody>
+        
+                    </table>
+            <div class='row m-lg-2  '>
+                    <div class='col px-lg-5'>
+                        <button class="btn btn-primary text-white"  data-toggle="modal" data-target="#myModal"> Adicionar Cartão </button>
+
                     </div>
-                    <div class='row m-lg-2  '>
-                        <p> Saldo:  <p>
-
-                            <div class='col px-lg-5'>
-                            
-                                <button class="btn btn-danger text-white  px-lg-5"  data-toggle="modal" data-target="#myModal"> Adicionar Compra </button>
-
-                            </div>
-                    </div>
-                 </div> {% endcomment %}
+            </div>
 
 
-                 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                        <h5 class="modal-title" id="myModalLabel">Adicionando Crédito</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                        </div>
-                            <form method="post">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                        <div class="align-content-center">
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="myModalLabel">Adicionando Crédito</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+        <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+        <div class ='p-1'>
+            {{form_cartao.as_p}}
+        </div>
 
-                                            <label for="nome">Nome da compra</label>
-                                                <input style= "max-width:150px;"   class="form-control input" type="text" id="nome" required name="nome">
-                                            
+        <div class ='p-1'>
+        <button type="submit" class="btn btn-primary text-white" >Adicionar Crédito </button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+        </div>
+        </form>
+        
+    </div>
+    </div>
+    </div>
 
-                                            <label  for="valor">Valor</label>
-                                                <input style= "max-width:150px; text-align: center"   class="form-control input" type="text" id="valor" required name="Valor">
-                                            
-                                            <label  for="nome">Data</label>
-                                                <input style= "max-width:150px; text-align: center"   class="form-control input" type="text" id="data" required name="Data">
+</div> 
+            </div>
+        </div>
+        <div class="col-md-4">
+            <h2 class="text-center">Compras no Crédito</h2>
+            <div class="card mt-3">
+                <h4 class="card-title mt-3 text-center ">Mês de: {{mes_atual}}     </h4>
+                <table class="table table-hover" style="border-radius : 10px;">
+                    <thead class=>
+                        <tr>               
+                            <th> </th>
+                            <th>Nome </th>
+                            <th>Valor </th>
+                            <th>Data </th>
+                            <th> Cartão </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%if not compras_cartao %}
+                        <tr> 
+                        <td> </td>
+                        <td>Nenhuma </td>  
+                        <td>Compra</td>  
+                        <td>Registrada </td>  
+                        <td> </td>  
+                        </tr> 
+                    
+                    </tbody>
+                    <a href="{%url 'add_compra' request.user.id  %}" class="btn btn-danger text-white  px-lg-5" > Adicionar Compra </a>
+    
+                </table>
+                
+            </div>
+
+            
+                {%else%}
 
 
-                                        <button type="submit" class="btn btn-primary text-white" >Adicionar Compra </button>
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                                    </div>
-                                </form>
 
-                            
+                {%for c in compras_cartao %}
+        
+                    <tr> 
+                    <td> <a href="{%url 'delete' c.id  'cartoes' %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
+                    <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_compras' c.id  %}" >{{c.nome}}  </a></td>
+                    
+                        <td class="text-danger"> <strong>{{c.valor}}</strong></td>
+                        <td class="text-danger"> <strong>{{c.data|date:'d/m/y'}}</strong></td>  
+                        <td class="text-danger"> <strong>{{c.cartao_credito}}</strong></td>  
 
-                            
-                    </div>
-                    </div>
-                    </div>
-                </div>
+
+
+                        
+                        </tr>
+                {%endfor%} 	
+                    
+                    </tbody>
+
+                </table>
+
+                <p> Saldo dos Cartões: {{total_saldo}} <p>
+
+                    <a href="{%url 'add_compra' request.user.id  %}" class="btn btn-danger text-white  px-lg-5" > Adicionar Compra </a>
+
+            </div>
+           
+        </div>
+        {%endif%}
+            
+        <div class="col-md-4">
+            <h2 class="text-center">Consumo de Crédito</h2>
+            <div class="card mt-3">
+                <h4 class="card-title mt-3 text-center ">Mês de: {{mes_atual}}     </h4>
+                <canvas id="pie-chart"></canvas>
+    </div>
+    <div class='row m-lg-2  '>
+
+        <p> Saldo: <p>
+
+
+            <div class='col px-lg-5'>
+                
+                <a href="{%url 'add_compra' request.user.id  %}" class="btn btn-danger text-white  px-lg-5" > Adicionar Compra </a>
+
+            </div>
     </div>
 </div>
-{%endblock%}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var data = {
+
+
+             labels: ['Saldo Cartões','Compras feitas'],
+            datasets: [{
+                data: [{{total_saldo}},{{total_compras}}],
+                        backgroundColor: ['green','red']
+                    }]
+                };
+           
+               
+                
+
+        var ctx = document.getElementById('pie-chart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'pie',
+            data: data,
+            options: {
+                title: {
+                    display: true,
+                    text: 'Meu Gráfico de Despesas e Receitas',
+                    fontSize: 16,
+                    fontColor: 'black',
+                    fontFamily:'arial black '
+                },
+                elements: {
+                    arc: {
+                        borderWidth: 0
+                    }
+                },
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        fontColor: 'black',
+                        fontSize: 12
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+
+{% endblock %}

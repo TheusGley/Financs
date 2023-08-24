@@ -98,17 +98,17 @@ class ReceitaForm(forms.ModelForm):
         }
         
 class CartaoForm (forms.ModelForm):
-    saldo_cartao = forms.CharField(widget=forms.TextInput(attrs={'class': "form-control", 'style': 'max-width: 300px; text-align: left;'}))
+    saldo_cartao = forms.CharField(widget=forms.TextInput(attrs={'class': "form-control input", 'style': 'max-width:250px; margin-left:24%;'}))
     
     class Meta:
      model = Cartao_credito
      fields = ['Marca', 'saldo_cartao', 'limite']
      widgets = {
-            'Marca': forms.TextInput(attrs={'class': 'form-control'}),
-            'limite': forms.TextInput(attrs={'class': 'form-control'}),
+            'Marca': forms.TextInput(attrs={'class': "form-control input", 'style': 'max-width:250px; margin-left:24%;'}),
+            'limite': forms.TextInput(attrs={'class': "form-control input", 'style': 'max-width:250px; margin-left:24%;'}),
             
       }
-     
+      
       
 class Cartao_att(forms.ModelForm):
     
@@ -124,6 +124,8 @@ class Cartao_att(forms.ModelForm):
         }
         
 class ChequeForm (forms.ModelForm):
+    
+   
     saldo_cheque = forms.CharField(widget=forms.TextInput(attrs={'class': "form-control", 'style': 'max-width: 300px; text-align: left;'}))
     
     class Meta:
@@ -139,5 +141,25 @@ class ChequeForm (forms.ModelForm):
       }
 
 
+
+                                            
+
     
+class Add_compra (forms.ModelForm):
+ 
+     
+    nome = forms.CharField(widget=forms.TextInput(attrs={'class': "form-control input", 'style': 'max-width:250px; margin-left:10%;'}))
+    data = forms.DateField(widget=forms.DateInput(attrs={'class': "form-control input", 'style': 'max-width:250px; margin-left:10%;','type': 'date'}))
+    valor = forms.DecimalField(widget=forms.TextInput(attrs={'class': "form-control input", 'style': 'max-width:250px; margin-left:10%', 'placeholder': ' Ex: 01/01/2001'}))
+   
     
+    class Meta:
+     model = Compras_cartao
+     fields = [ 'nome', 'data', 'valor']
+    #  widgets = {
+    #         'limite': forms.TextInput(attrs={'class': 'form-control'}),
+    #         'saldo_cheque': forms.TextInput(attrs={'class': 'form-control'}),
+    #         'juros': forms.TextInput(attrs={'class': 'form-control'}),
+    #         'banco': forms.TextInput(attrs={'class': 'form-control'}),
+            
+    #  }

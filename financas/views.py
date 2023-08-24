@@ -12,12 +12,16 @@ from .forms import *
 from xhtml2pdf import pisa
 from babel.core import Locale
 from babel.dates import format_date
-import base64 
+
+from django.shortcuts import render
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+
 
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode,  urlsafe_base64_decode
-from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.contrib.auth import get_user_model
 from django.utils.encoding import force_str
@@ -184,7 +188,6 @@ def index (request, id_usuario):
             desired_locale = Locale('pt_BR')
             data_atual= datetime.datetime.today()
             mes_atual_str = format_date(data_atual, format='MMMM', locale=desired_locale)
-
             soma_despesa = despesa.aggregate(soma=Sum('valor'))
             total_despesa = soma_despesa['soma']
             
@@ -366,16 +369,103 @@ def despesa_mes (request, id_usuario, num_mes):
 def cartoes (request, id_usuario):
     
     cartao_obj= Cartao_credito.objects.filter(id_usuario=id_usuario)
-
+    compras_cartao = Compras_cartao.objects.filter(cartao_credito__in=cartao_obj)
+    
+    desired_locale = Locale('pt_BR')
+    data_atual= datetime.datetime.today()
+    mes_atual_str = format_date(data_atual, format='MMMM', locale=desired_locale)
+    total_saldo = sum(cartao.saldo_cartao for cartao in cartao_obj)
+    total_compras = sum(compra.valor for compra in compras_cartao)
 
     
     
-    context= {
-        'cartao_obj' : cartao_obj
+    if request.method == 'POST':
+                form_cartao = CartaoForm(request.POST)
+                if form_cartao.is_valid():
+                    cartao_obj = Cartao_credito()
+                    cartao_obj.Marca = form_cartao.cleaned_data['Marca']
+                    cartao_obj.saldo_cartao = form_cartao.cleaned_data['saldo_cartao']
+                    cartao_obj.limite = form_cartao.cleaned_data['limite']
+                    cartao_obj.id_usuario = request.user
+                    cartao_obj.save()
+                    return redirect('cartoes', id_usuario=id_usuario)
+    else:
+            form_cartao = CartaoForm()
+  
+
+    context = {
+        'cartao_obj' : cartao_obj,
+        'compras_cartao':compras_cartao,
+        'mes_atual':mes_atual_str,
+        'form_cartao': form_cartao ,
+        'total_saldo':total_saldo,
+        'total_compras':total_compras,
     }
+    
+        
     return render (request, 'despesa/cartoes.html', context ) 
      
+     
+def add_compras(request, id_usuario):
+    if request.method == 'POST':
+        form = Add_compra(request.POST)
+        if form.is_valid():
+            add_cartao = request.POST.get('opcao_selecionada')
+            nome_compra = form.cleaned_data['nome']
+            valor_compra = form.cleaned_data['valor']
+            data_compra = form.cleaned_data['data']
+            
+            # Recupera a instância do cartão com base na marca (add_cartao é a marca, correto?)
+            cartao_instance = Cartao_credito.objects.get(Marca=add_cartao, id_usuario=id_usuario)
+            
+            # Subtrai o valor da compra do saldo do cartão
+            cartao_instance.saldo_cartao -= valor_compra
+            cartao_instance.save()  # Salva a instância do cartão com o novo saldo
+            
+            # Cria uma nova instância de Compras_cartao e atribui os valores
+            nova_compra = Compras_cartao()
+            nova_compra.nome = nome_compra
+            nova_compra.valor = valor_compra
+            nova_compra.data = data_compra
+            nova_compra.cartao_credito = cartao_instance
+            nova_compra.save()
+            
+            return redirect('cartoes', id_usuario=id_usuario)
+    else:
+        form = Add_compra()
+        cartao = Cartao_credito.objects.filter(id_usuario=id_usuario)
+    context = {
+        'cartao': cartao,
+        'form': form,
+    }
+    return render(request, 'despesa/add_compras.html', context)
+
+@login_required
+def atualizar_compras(request, id_compras):
     
+    # Verificar se o usuário está autenticado
+
+    # Verificar se a despesa pertence ao usuário atual
+    compras = Compras_cartao.objects.filter(id=id_compras).first()
+    id_usuario = request.user.id
+
+    # Processar o formulário de atualização
+    if request.method == 'POST':
+        form = Add_compra(request.POST, instance=compras)
+        if form.is_valid():
+            form.save()
+            return redirect('cartoes', id_usuario )
+    else:
+        form = Add_compra(instance=compras)
+
+    context = {
+        'form': form
+    }
+    
+    return render(request, 'despesa/atualizar_compras.html', context)
+    
+    
+
 @login_required
 def paguei(request, id_despesa):
     
@@ -394,14 +484,35 @@ def paguei(request, id_despesa):
         return redirect('despesa', id_usuario)
 
 @login_required
-def delete(request, id_obj):
-    
+def delete(request, id_obj, instance):
     id_usuario = request.user.id
-    if request.method == "GET":
-        despesa_obj = Despesa.objects.get(id_usuario=id_usuario, id=id_obj)
-        despesa_obj.delete()
-        return redirect('despesa', request.user.id)
     
+    instance_mapping = {
+        'despesa': Despesa,
+        'receita': Receita,
+        'cartoes': Compras_cartao,
+        'cartao': Cartao_credito,
+    }
+    
+    if instance in instance_mapping:
+        model_class = instance_mapping[instance]
+        
+        try:
+            if instance == 'cartoes':
+                obj = model_class.objects.get(id=id_obj)
+            else:
+                obj = model_class.objects.get(id_usuario=id_usuario, id=id_obj)
+            obj.delete()
+            return redirect(instance, request.user.id)
+        except model_class.DoesNotExist:
+            # Lida com o caso em que o objeto não é encontrado
+            pass
+    
+    # Redirecionamento padrão em caso de falha
+    return redirect(instance, request.user.id )
+
+        
+
    
 
 @login_required
@@ -467,8 +578,7 @@ def despesa_total (request,id_usuario):
 @login_required
 
 def receita_page (request,id_usuario):
-    desired_locale = Locale('pt_BR')
-    data_atual= datetime.datetime.today()
+
     mes_atual = datetime.datetime.now().month
     
     
@@ -476,7 +586,11 @@ def receita_page (request,id_usuario):
     receita_obj = Receita.objects.filter(id_usuario=id_usuario, data_entrada__month=mes_atual)
     num_mes = datetime.datetime.now().month
     
+    desired_locale = Locale('pt_BR')
+    data_atual= datetime.datetime.today()
     mes_atual_str = format_date(data_atual, format='MMMM', locale=desired_locale)
+
+    
     
     num_mes = datetime.datetime.now().month
     
@@ -641,6 +755,8 @@ def saldo_page (request,id_usuario):
         
         soma_receita = receita_atual.aggregate(soma=Sum('valor'))
         total_receita = soma_receita['soma']
+        
+        
     
         if cartao_obj:   
             soma_credito = cartao_obj.aggregate(soma=Sum('saldo_cartao'))
@@ -865,4 +981,3 @@ def scheduler_vencimento():
         despesa.save()
         
   
-

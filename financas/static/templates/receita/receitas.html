@@ -33,10 +33,10 @@
               {%else%} 
                   {% for dp in receitas %}
                       <tr>
-                        <td> <a href="{%url 'delete' dp.id %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
+                        <td> <a href="{%url 'delete' dp.id 'receita' %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
 
                         <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_receita' dp.id %}" >{{dp.nome}}  </a></td>
-                        <td>R$: {{dp.valor}}</td>
+                        <td>R$: {{dp.valor}} </td>
                         <td>{{dp.data_entrada|date:"d/m/Y"}}</td>
                         <td> </td>
                       </tr>     
