@@ -5,11 +5,11 @@
 <div class="container mt-4 text-center">
     <div class="row">
         <div class="col-md-4">
-            <h2 class="text-center">Cartão de Crédito</h2>
+            <h2 class="text-center">CartÃ£o de CrÃ©dito</h2>
                 <div class="card mt-3">
-                <h4 class="card-title mt-3 text-center ">Mês de: {{mes_atual}}     </h4>
+                <h4 class="card-title mt-3 text-center ">MÃªs de: {{mes_atual}}     </h4>
 
-                    <table class="table table-hover" style="border-radius : 10px;">
+                    <table class="table table-hover" id="compras_extrato" style="border-radius : 10px;">
                         <thead class=>
                             <tr>                      
                                 <th>Marca </th>
@@ -34,7 +34,7 @@
                     </table>
             <div class='row m-lg-2  '>
                     <div class='col px-lg-5'>
-                        <button class="btn btn-primary text-white"  data-toggle="modal" data-target="#myModal"> Adicionar Cartão </button>
+                        <button class="btn btn-primary text-white"  data-toggle="modal" data-target="#myModal"> Adicionar CartÃ£o </button>
 
                     </div>
             </div>
@@ -44,7 +44,7 @@
     <div class="modal-dialog" role="document">
     <div class="modal-content">
         <div class="modal-header">
-        <h5 class="modal-title" id="myModalLabel">Adicionando Crédito</h5>
+        <h5 class="modal-title" id="myModalLabel">Adicionando CrÃ©dito</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
         <span aria-hidden="true">&times;</span>
         </button>
@@ -57,7 +57,7 @@
         </div>
 
         <div class ='p-1'>
-        <button type="submit" class="btn btn-primary text-white" >Adicionar Crédito </button>
+        <button type="submit" class="btn btn-primary text-white" >Adicionar CrÃ©dito </button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
         </div>
         </form>
@@ -73,8 +73,8 @@
             <h2 class="text-center">Compras no Crédito</h2>
             <div class="card mt-3">
                 <h4 class="card-title mt-3 text-center ">Mês de: {{mes_atual}}     </h4>
-                <table class="table table-hover" style="border-radius : 10px;">
-                    <thead class=>
+                <table class="table table-hover " id ="scrollable-table"style="border-radius : 10px;">
+                    <thead >
                         <tr>               
                             <th> </th>
                             <th>Nome </th>
@@ -100,7 +100,7 @@
                 </table>
                 
             </div>
-
+        </div>
             
                 {%else%}
 
@@ -126,47 +126,42 @@
 
                 </table>
 
-                <p> Saldo dos Cartões: {{total_saldo}} <p>
+                <p> Saldo dos CartÃµes: {{total_saldo}} <p>
 
                     <a href="{%url 'add_compra' request.user.id  %}" class="btn btn-danger text-white  px-lg-5" > Adicionar Compra </a>
+                    <a href="{%url 'extrato_compras' request.user.id  %}" target="_blank " class="btn btn-primary text-white  px-lg-5" > Abrir extrato </a>
 
             </div>
            
         </div>
+
         {%endif%}
             
         <div class="col-md-4">
-            <h2 class="text-center">Consumo de Crédito</h2>
+            <h2 class="text-center">Consumo de CrÃ©dito</h2>
             <div class="card mt-3">
-                <h4 class="card-title mt-3 text-center ">Mês de: {{mes_atual}}     </h4>
+                <h4 class="card-title mt-3 text-center ">MÃªs de: {{mes_atual}}     </h4>
                 <canvas id="pie-chart"></canvas>
-    </div>
-    <div class='row m-lg-2  '>
-
-        <p> Saldo: <p>
-
-
-            <div class='col px-lg-5'>
-                
-                <a href="{%url 'add_compra' request.user.id  %}" class="btn btn-danger text-white  px-lg-5" > Adicionar Compra </a>
-
-            </div>
-    </div>
-</div>
+   	 </div>
+    
             </div>
         </div>
     </div>
 </div>
 
 <script>
+
+    <script>
+      
+      
     document.addEventListener('DOMContentLoaded', function() {
         var data = {
 
 
-             labels: ['Saldo Cartões','Compras feitas'],
+             labels: ['Saldo CartÃµes','Compras feitas'],
             datasets: [{
                 data: [{{total_saldo}},{{total_compras}}],
-                        backgroundColor: ['green','red']
+                        backgroundColor: ['blue','red']
                     }]
                 };
            
@@ -180,7 +175,7 @@
             options: {
                 title: {
                     display: true,
-                    text: 'Meu Gráfico de Despesas e Receitas',
+                    text: 'Meu GrÃ¡fico de Despesas e Receitas',
                     fontSize: 16,
                     fontColor: 'black',
                     fontFamily:'arial black '
@@ -201,6 +196,17 @@
             }
         });
     });
+
+    const table = document.querySelector('#scrollable-table');
+
+    // Define a altura máxima da tabela (em pixels)
+    const maxHeight = 300;
+
+    // Adiciona a rolagem apenas se a altura da tabela exceder maxHeight
+    if (table.clientHeight > maxHeight) {
+        table.style.overflowY = 'scroll'; // Adiciona a rolagem vertical
+        table.style.maxHeight = maxHeight + 'px'; // Define a altura máxima
+    }
 </script>
 
 

@@ -29,7 +29,9 @@ urlpatterns = [
     path('saldo/<id_usuario>/',saldo_page, name='saldo'),
     path('atualizar_cartao/<id_cartao>', atualizar_cartao, name='atualizar_cartao'),
     path('add_cheque/<id_usuario>', add_cheque, name='add_cheque'),
-    path('extrato/<id_usuario>/',extrato_page, name='extrato'),   
+    path('extrato/<id_usuario>/',extrato_page, name='extrato'), 
+    path('extrato_compras/<id_usuario>/',extrato_compras, name='extrato_compras'),   
+      
     path('add_despesa/<id_usuario>/',add_despesa, name='add_despesa'),
     path('extrato_pdf',extrato_pdf, name='extrato_pdf'),
     

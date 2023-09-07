@@ -17,16 +17,21 @@
       
                       <div class="form-group ">
                         <select class="form-control  mb-2 " style="margin-left: 10%; width:250px" name="opcao_selecionada" id="opcao_selecionada">
+
                           {%for c in cartao%}
 
                           <option value="{{c.Marca}}">{{c.Marca}} </option>
-
+                          
                           {%endfor%}
                         </select>
+                       
                       </div>
                   
                   
                     {{form.as_p}}
+                    <label for="valor_compra"> Valor: </label>
+                      <input name="valor_compra" id="valor_compra" class="form-control input mb-4" style="max-width:250px; margin-left:10%" placeholder="Ex 00,00"> 
+
                   <button type="submit" class="ms-5 btn btn-primary text-white" >Adicionar Compra </button>
                   <a href="{%url 'cartoes' request.user.id %}" class="btn btn-danger text-white" >Cancelar</a>
 

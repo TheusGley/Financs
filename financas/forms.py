@@ -43,12 +43,10 @@ class Add_despesa(forms.ModelForm):
     ]   
     
  
-    nome = forms.CharField(widget=forms.TextInput(attrs={'class': "form-control", 'style': 'max-width: 300px; text-align: left;'}))
+    nome = forms.CharField(widget=forms.TextInput(attrs={'class': "form-control", 'style': 'max-width: 300px; text-align: left;','placeholder': 'Nome Despesa'}))
     status = forms.ChoiceField(choices=Status, widget=forms.Select(attrs={'class': "form-control", 'style': 'max-width: 300px; text-align: left;'}))
-    valor = forms.DecimalField(widget=forms.TextInput(attrs={'class': "form-control", 'style': 'max-width: 300px; text-align: left;', 'placeholder': ' Ex: 123.12'}))
     prioridade = forms.ChoiceField(choices=Prioridades, widget=forms.Select(attrs={'class': "form-control", 'style': 'max-width: 300px; text-align: left;'}))
-    data_entrada = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Data de Entrada', 'type': 'date'}))
-    data_vencimento = MonthDayField(widget=forms.TextInput(attrs={'class': "form-control", 'style': 'max-width: 300px; text-align: left;', 'placeholder': 'Formato DD-MM'}))
+    data_entrada = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Data de Entrada', 'style': 'max-width: 300px;', 'type': 'date'}))
     parcelas = forms.IntegerField(required=False , widget=forms.NumberInput(attrs={ 'class': "form-control", 'style': 'max-width: 300px; text-align: left;', 'placeholder': 'Parcelas'}))
      
      
@@ -56,7 +54,7 @@ class Add_despesa(forms.ModelForm):
     
     class Meta: 
         model = Despesa
-        fields = ['nome', 'valor', 'prioridade','data_entrada', 'data_vencimento','parcelas','status']
+        fields = ['nome',  'prioridade','data_entrada', 'parcelas','status'] 
         
 class DespesaForm(forms.ModelForm):
     prioridade = forms.ChoiceField(choices=Prioridades, widget=forms.Select(attrs={'class': "form-control", 'style': 'max-width: 300px; text-align: left;'}))
@@ -68,8 +66,8 @@ class DespesaForm(forms.ModelForm):
         fields = ['nome', 'valor', 'data_vencimento', 'parcelas','prioridade', 'status']
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control'}),
-            'valor': forms.NumberInput(attrs={'class': 'form-control'}),
-            'data_entrada' : forms.DateInput(attrs={'class': 'form-control'}),
+            'valor': forms.NumberInput(attrs={'class': 'form-control',   }),
+            'data_entrada' : forms.DateInput(attrs={'class': 'form-control' , 'style': 'max-width: 300px;'}),
             'data_vencimento': forms.DateInput(attrs={'class': 'form-control'}),
 
         }
@@ -77,12 +75,11 @@ class DespesaForm(forms.ModelForm):
 class Add_receita (forms.ModelForm):
     
     nome = forms.CharField(widget=forms.TextInput(attrs={'class': "form-control", 'style': 'max-width: 300px; text-align: left;'}))
-    valor = forms.DecimalField(widget=forms.TextInput(attrs={'class': "form-control", 'style': 'max-width: 300px; text-align: left;', 'placeholder': ' Ex: 123.12'}))
-    data_entrada = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Data de Entrada', 'type': 'date'}))
+    data_entrada = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control','style': 'max-width: 300px; text-align: left;', 'placeholder': 'Data de Entrada', 'type': 'date'}))
     
     class Meta:
         model = Receita
-        fields = ['nome', 'valor','data_entrada']
+        fields = ['nome', 'data_entrada'] 
         
 
 class ReceitaForm(forms.ModelForm):
@@ -150,16 +147,11 @@ class Add_compra (forms.ModelForm):
      
     nome = forms.CharField(widget=forms.TextInput(attrs={'class': "form-control input", 'style': 'max-width:250px; margin-left:10%;'}))
     data = forms.DateField(widget=forms.DateInput(attrs={'class': "form-control input", 'style': 'max-width:250px; margin-left:10%;','type': 'date'}))
-    valor = forms.DecimalField(widget=forms.TextInput(attrs={'class': "form-control input", 'style': 'max-width:250px; margin-left:10%', 'placeholder': ' Ex: 01/01/2001'}))
    
     
     class Meta:
      model = Compras_cartao
-     fields = [ 'nome', 'data', 'valor']
-    #  widgets = {
-    #         'limite': forms.TextInput(attrs={'class': 'form-control'}),
-    #         'saldo_cheque': forms.TextInput(attrs={'class': 'form-control'}),
-    #         'juros': forms.TextInput(attrs={'class': 'form-control'}),
-    #         'banco': forms.TextInput(attrs={'class': 'form-control'}),
-            
-    #  }
+     fields = [ 'nome', 'data']
+
+
+    

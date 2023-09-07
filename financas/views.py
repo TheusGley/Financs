@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 import datetime , locale 
+from datetime import date
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 from io import BytesIO
@@ -13,10 +14,8 @@ from xhtml2pdf import pisa
 from babel.core import Locale
 from babel.dates import format_date
 
-from django.shortcuts import render
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import numpy as np
+from django.shortcuts import render,get_object_or_404
+
 
 
 from django.core.mail import send_mail
@@ -129,37 +128,39 @@ def reset_senha(request, uidb64, token):
 
    
     
-
 def login_view(request):
     
     if request.user.is_authenticated:
-        id_usuario = request.user.id
-        return redirect('index', id_usuario=id_usuario)
+        
+        return redirect('index',id_usuario=request.user.id)
+    
     elif request.method == 'POST':
-        username = request.POST['username']
+        username_or_email = request.POST['username']
         password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
+        
+        # Tente autenticar usando o campo username
+        user = authenticate(request, username=username_or_email, password=password)
+        
+        # Se a autenticação falhar, tente novamente usando o campo email
+        if user is None:
+            try:
+                user = User.objects.get(email=username_or_email)
+                user = authenticate(request, username=user.username, password=password)
+            except User.DoesNotExist:
+                pass
+        
         if user is not None:
             login(request, user)
-            id_usuario = user.id
-            return redirect('index', id_usuario=id_usuario)
-        elif user is not None:
-            db_username = User.objects.get(username=username)
-            if db_username:
-                error_message = 'Senha invalida'
-                return render(request, 'login/login.html', {'error_message': error_message})   
-            else: 
-                error_message = 'Nome de usuário invalido'
-                return render(request, 'login/login.html', {'error_message': error_message})
-        else:
-            error_message = 'Senha invalida'
-            return render(request, 'login/login.html', {'error_message': error_message})
             
+            
+            return redirect('index', id_usuario=request.user.id)
+            
+        else:
+            error_message = 'Credenciais inválidas'
+            return render(request, 'login/login.html', {'error_message': error_message})
     else:
         return render(request, 'login/login.html')
-
-
-     
+    
 @login_required
 
 def logout_view (request):
@@ -169,11 +170,10 @@ def logout_view (request):
     return redirect ('login')
 
 @login_required
-def index (request, id_usuario):
+def index (request, id_usuario ):
     
 
-    if int(id_usuario) == request.user.id:
-        
+    if int(id_usuario) == request.user.id:        
                 
         exist = Saldo.objects.filter(id_usuario = id_usuario)
         
@@ -225,7 +225,7 @@ def index (request, id_usuario):
                 total_despesa = soma_despesa['soma']
                 total_receita = soma_receita['soma'] 
             
-            extrato_despesa = Despesa.objects.filter(id_usuario=id_usuario, status="Pago").order_by('data_entrada')
+            extrato_despesa = Despesa.objects.filter(id_usuario=id_usuario,data_vencimento__month=mes_atual, status="Pago").order_by('data_entrada')
             extrato_receita = Receita.objects.filter(id_usuario=id_usuario, data_entrada__month=mes_atual).order_by('data_entrada')
             resultados_lista = list(extrato_despesa) + list(extrato_receita)
             resultados = sorted(resultados_lista, key=lambda x: x.data_entrada)
@@ -366,6 +366,8 @@ def despesa_mes (request, id_usuario, num_mes):
 
     return render(request, 'despesa/despesa.html', context)
 
+@login_required
+
 def cartoes (request, id_usuario):
     
     cartao_obj= Cartao_credito.objects.filter(id_usuario=id_usuario)
@@ -412,20 +414,19 @@ def add_compras(request, id_usuario):
         if form.is_valid():
             add_cartao = request.POST.get('opcao_selecionada')
             nome_compra = form.cleaned_data['nome']
-            valor_compra = form.cleaned_data['valor']
+            valor_compra = request.POST.get('valor_compra')
             data_compra = form.cleaned_data['data']
             
             # Recupera a instância do cartão com base na marca (add_cartao é a marca, correto?)
             cartao_instance = Cartao_credito.objects.get(Marca=add_cartao, id_usuario=id_usuario)
-            
-            # Subtrai o valor da compra do saldo do cartão
-            cartao_instance.saldo_cartao -= valor_compra
+            valor_compra_decimal = Decimal(valor_compra.replace(',', '.'))
+            cartao_instance.saldo_cartao -= valor_compra_decimal
             cartao_instance.save()  # Salva a instância do cartão com o novo saldo
             
             # Cria uma nova instância de Compras_cartao e atribui os valores
             nova_compra = Compras_cartao()
             nova_compra.nome = nome_compra
-            nova_compra.valor = valor_compra
+            nova_compra.valor = valor_compra_decimal
             nova_compra.data = data_compra
             nova_compra.cartao_credito = cartao_instance
             nova_compra.save()
@@ -442,26 +443,36 @@ def add_compras(request, id_usuario):
 
 @login_required
 def atualizar_compras(request, id_compras):
-    
-    # Verificar se o usuário está autenticado
-
-    # Verificar se a despesa pertence ao usuário atual
-    compras = Compras_cartao.objects.filter(id=id_compras).first()
+ 
+    compra = get_object_or_404(Compras_cartao, pk=id_compras)
     id_usuario = request.user.id
-
-    # Processar o formulário de atualização
-    if request.method == 'POST':
-        form = Add_compra(request.POST, instance=compras)
-        if form.is_valid():
-            form.save()
-            return redirect('cartoes', id_usuario )
-    else:
-        form = Add_compra(instance=compras)
-
-    context = {
-        'form': form
-    }
     
+
+    if request.method == 'POST':
+        form = Add_compra(request.POST, instance=compra)
+        if form.is_valid():
+            # Atualize o cartão selecionado na compra com base no formulário
+            cartao_marca =request.POST.get('opcao_selecionada')
+            valor_compra = request.POST.get('valor_compra')
+            valor_compra_decimal = Decimal(valor_compra.replace(',', '.'))
+            cartao_instance = Cartao_credito.objects.get(Marca=cartao_marca, id_usuario=id_usuario)
+            cartao_instance.saldo_cartao -= valor_compra_decimal
+            
+            compra.valor = valor_compra_decimal
+            compra.cartao_credito = cartao_instance
+            compra.cartao_credito.save()  # Salve a alteração do cartão
+
+            form.save()  # Salve a compra atualizada
+            return redirect('cartoes',id_usuario)
+    else:
+        form = Add_compra(instance=compra)
+   
+    cartao = Cartao_credito.objects.filter(id_usuario=id_usuario)
+    context = {
+        'cartao': cartao,
+        'form': form,
+    }
+
     return render(request, 'despesa/atualizar_compras.html', context)
     
     
@@ -523,14 +534,71 @@ def add_despesa (request, id_usuario):
     if request.method == 'POST':
         form = Add_despesa(request.POST)
         if form.is_valid():
-            despesa = form.save(commit=False)
-            despesa.id_usuario = request.user
-            despesa.data_paga = data_atual
-            despesa.changed = "Não"
-            despesa.dp_rc = "Despesa"
-            
-            despesa.save()
-            return redirect('despesa', id_usuario=id_usuario)
+            despesa_valor=  request.POST.get('despesa_valor')
+            data_vencimento_post = request.POST.get ('data_vencimento')
+            recorrente = request.POST.get ('meuCheckbox')
+            if recorrente == "true":
+                print("true")
+                valor_compra_decimal = Decimal(despesa_valor.replace(',', '.'))
+                despesa = form.save(commit=False)
+                despesa.id_usuario = request.user
+                despesa.valor = valor_compra_decimal
+                if data_vencimento_post == "" or data_vencimento_post == None:
+                    print("dataa_vencimento")
+                    
+                    despesa.data_vencimento = data_atual
+                    despesa.data_paga = data_atual
+                    despesa.changed = "Não"
+                    despesa.dp_rc = "Despesa"
+                    despesa.save()
+                    
+                    mes_atual = datetime.datetime.today().month
+                    parcelas_restantes = 12 - int(mes_atual)
+                    data_vencimento1 = despesa.data_vencimento
+                
+                    for _ in range(parcelas_restantes):
+                        nova_despesa = Despesa()
+                        data_vencimento1 += relativedelta(months=1)
+                        nova_despesa.id_usuario = request.user
+                        nova_despesa.nome = despesa.nome
+                        nova_despesa.valor = despesa.valor
+                        nova_despesa.prioridade = despesa.prioridade
+                        nova_despesa.data_entrada = despesa.data_entrada
+                        nova_despesa.parcelas = despesa.parcelas 
+                        nova_despesa.status = "Pendente"
+                        nova_despesa.data_entrada = despesa.data_entrada
+                        nova_despesa.data_vencimento = data_vencimento1
+                        nova_despesa.data_paga = data_atual
+                        
+                        nova_despesa.changed = "Não"
+                        nova_despesa.dp_rc = "Despesa"
+                        
+                        nova_despesa.save()
+                    return redirect('despesa', id_usuario=id_usuario)
+            else: 
+                
+                valor_compra_decimal = Decimal(despesa_valor.replace(',', '.'))
+                despesa = form.save(commit=False)
+                despesa.id_usuario = request.user
+                despesa.valor = valor_compra_decimal
+                if data_vencimento_post == "" or data_vencimento_post == None:
+                    despesa.data_vencimento = data_atual
+                    despesa.data_paga = data_atual
+                    despesa.changed = "Não"
+                    despesa.dp_rc = "Despesa"
+                    despesa.save()
+                    return redirect('despesa', id_usuario=id_usuario)
+                    
+                else:    
+                        
+                        data_formatada =  date.fromisoformat(data_vencimento_post)
+                        despesa.data_vencimento = data_formatada
+                        despesa.data_paga = data_atual
+                        despesa.changed = "Não"
+                        despesa.dp_rc = "Despesa"
+                        
+                        despesa.save()
+                        return redirect('despesa', id_usuario=id_usuario)
     else:
         form = Add_despesa()
     
@@ -616,11 +684,44 @@ def add_receita (request, id_usuario):
     if request.method == 'POST':
         form = Add_receita(request.POST)
         if form.is_valid():
-            receita = form.save(commit=False)
-            receita.id_usuario = request.user
-            receita.dp_rc = "Receita"
-            receita.save()
-            return redirect('receita', id_usuario=id_usuario)
+            recorrente= request.POST.get('meuCheckbox')
+            if recorrente == "true":
+                receita_valor = request.POST.get('receita_valor')
+                valor_compra_decimal = Decimal(receita_valor.replace(',', '.'))
+                
+                receita = form.save(commit=False)
+                receita.id_usuario = request.user
+                receita.valor = valor_compra_decimal
+                receita.dp_rc = "Receita"
+                receita.save()
+                
+                mes_atual = datetime.datetime.today().month
+                parcelas_restantes = 12 - int(mes_atual)
+                data_entrada1 = receita.data_entrada
+                
+                for _ in range(parcelas_restantes):
+                    nova_receita = Receita()
+                    data_entrada1 += relativedelta(months=1)
+                    nova_receita.id_usuario = request.user
+                    nova_receita.nome = receita.nome
+                    nova_receita.valor = receita.valor
+                    nova_receita.data_entrada = data_entrada1
+                    nova_receita.save()
+                
+                return redirect('receita', id_usuario=id_usuario) 
+            else :
+                    receita_valor = request.POST.get('receita_valor')
+                    valor_compra_decimal = Decimal(receita_valor.replace(',', '.'))
+                
+                    receita = form.save(commit=False)
+                    receita.id_usuario = request.user
+                    receita.valor = valor_compra_decimal
+                    receita.dp_rc = "Receita"
+                    receita.save()
+                
+                
+                
+                    return redirect('receita', id_usuario=id_usuario)
     else:
         form = Add_receita()
     
@@ -661,78 +762,35 @@ def atualizar_receita(request, id_receita):
 def receita_mes (request, id_usuario, num_mes):
     
     acao = request.GET.get("acao")
+    desired_locale = Locale('pt_BR')    
     mes_atual = datetime.datetime.now().month
-    desired_locale = Locale('pt_BR')
-    
-    
-    if acao == 'ante' :   
-        
-        if int(num_mes) == int(mes_atual) or int(num_mes) <= 12 :
-            
-            receita_obj = Receita.objects.filter(id_usuario=id_usuario)
-            numero_mes = int(num_mes) 
-            if numero_mes > 1:  
-                numero_mes -= 1    
-                receita_obj = Receita.objects.filter(id_usuario=id_usuario, data_entrada__month=numero_mes)
-                data_mes = datetime.datetime.strftime(datetime.datetime(1900, numero_mes, 1)) 
-                mes_formatado = format_date(data_mes, format='MMMM', locale=desired_locale)
-                context = {
-                    'receitas': receita_obj,
-                    'mes_atual': mes_formatado,
-                    'num_mes': numero_mes
-                }
-                return render( request,'receita/receitas.html', context) 
-            elif numero_mes == 1 :
-                receita_obj = Receita.objects.filter(id_usuario=id_usuario, data_entrada__month=numero_mes)
-                data_mes = datetime.datetime.strftime(datetime.datetime(1900, numero_mes, 1)) 
-                mes_formatado = format_date(data_mes, format='MMMM', locale=desired_locale)
 
-                context = {
-                    'receitas': receita_obj,
-                    'mes_atual': mes_formatado,
-                    'num_mes': numero_mes
-                }
-                return render( request,'receita/receitas.html', context)  
-            else:
-                receita_obj = Receita.objects.filter(id_usuario=id_usuario, data_entrada__month=numero_mes)
-                mes_atual_desc = datetime.datetime.strftime(datetime.datetime(1900, numero_mes, 1), '%B')
-                context = {
-                    'receitas': receita_obj,
-                    'mes_atual': mes_atual_desc,
-                    'num_mes': numero_mes
-                }
-                return render( request,'receita/receitas.html', context) 
-         
-        else : 
-            return render(request, 'receita/receitas.html', context) 
-            
-        
-    elif acao == 'prox' : 
-        
-        if int(num_mes) > 12:
-            return redirect ('receita', id_usuario)
-        else :  
-            receita_obj = Receita.objects.filter(id_usuario=id_usuario)
-            
-            receita_obj = Receita.objects.filter(id_usuario=id_usuario, data_entrada__month=num_mes)
-        
-            mes_atual_desc = datetime.datetime.strftime(datetime.datetime(1900,  int(num_mes), 1), '%B')
-            numero_mes = int(num_mes) 
-            numero_mes += 1    
-            
-                    
-            context = { 'receitas': receita_obj,
-                        'mes_atual': mes_atual_desc,
-                        'num_mes' : numero_mes
-                
-            }
-            
-            return render (request, 'receita/receitas.html', context)
-        
-    return redirect ('receita', id_usuario)
-    
-       
-    
+    if acao == 'ante':
+        num_mes = int(num_mes) - 1
+    elif acao == 'prox':
+        num_mes = int(num_mes) + 1
+
+    if int(num_mes)  < 1:
+        return redirect('receita', id_usuario)
+
+    if int(num_mes)  > 12:
+        return redirect('receita', id_usuario)
+
+    if int(num_mes)  > mes_atual:
+        receitas_obj = Receita.objects.filter(id_usuario=id_usuario, data_entrada__month=int(num_mes) )
+    else:
+        receitas_obj = Receita.objects.filter(id_usuario=id_usuario, data_entrada__month=int(num_mes) )
+
+    data_mes = datetime.datetime(1900, int(num_mes) , 1)
+    mes_formatado = format_date(data_mes, format='MMMM', locale=Locale('pt_BR'))
+
+    context = {
+        'receitas': receitas_obj,
+        'mes_atual': mes_formatado,
+        'num_mes': int(num_mes) 
+    }
+
+    return render(request, 'receita/receita.html', context)
 
 @login_required
    
@@ -749,6 +807,8 @@ def saldo_page (request,id_usuario):
         cheque_obj = Cheque_esp.objects.filter(id_usuario=id_usuario)
         
         mes_atual = datetime.datetime.strftime(datetime.datetime(1900, num_mes, 1), '%B')
+        data_mes = datetime.datetime(1900, int(num_mes) , 1)
+        mes_formatado = format_date(data_mes, format='MMMM', locale=Locale('pt_BR'))
 
         soma_despesa = despesa_obj.aggregate(soma=Sum('valor'))
         total_despesa = soma_despesa['soma']
@@ -820,6 +880,7 @@ def saldo_page (request,id_usuario):
                         'saldo_total':saldo_total,    
                         'saldo_credito':saldo_credito,
                         'mes_atual': mes_atual,
+                        'mes_formatado':mes_formatado,
                         'form_cartao' : form_cartao,
                         'cartoes':cartao_obj,
                         'despesas': despesa_obj,
@@ -855,6 +916,7 @@ def saldo_page (request,id_usuario):
                     'saldo_credito':saldo_credito,
                     'mes_atual': mes_atual,
                     'form_cartao' : form_cartao,
+                    'mes_formatado':mes_formatado,
                     'cartoes':cartao_obj,
                     'receitas':receita_atual,
                     'despesas': despesa_obj,
@@ -927,7 +989,7 @@ def extrato_page (request,id_usuario):
     num_mes = datetime.datetime.today().month
     data_atual = datetime.datetime.today()
     
-    despesa_obj = Despesa.objects.filter(id_usuario=id_usuario, status="Pago").order_by('data_paga')
+    despesa_obj = Despesa.objects.filter(id_usuario=id_usuario, data_vencimento__month=num_mes, status="Pago").order_by('data_paga')
     receita_obj = Receita.objects.filter(id_usuario=id_usuario, data_entrada__month=num_mes).order_by('data_entrada')
     resultados_lista = list(despesa_obj) + list(receita_obj)
     resultados = sorted(resultados_lista, key=lambda x: x.data_entrada)
@@ -943,6 +1005,41 @@ def extrato_page (request,id_usuario):
     return render (request, 'extrato/extrato.html', context)
     
         
+@login_required
+        
+             
+def extrato_compras(request, id_usuario):
+
+   
+
+    cartao_obj= Cartao_credito.objects.filter(id_usuario=id_usuario)
+    compras_cartao = Compras_cartao.objects.filter(cartao_credito__in=cartao_obj)
+    
+    desired_locale = Locale('pt_BR')
+    data_atual= datetime.datetime.today()
+    mes_atual_str = format_date(data_atual, format='MMMM', locale=desired_locale)
+    total_saldo = sum(cartao.saldo_cartao for cartao in cartao_obj)
+    total_compras = sum(compra.valor for compra in compras_cartao)
+
+    context = {
+        'cartao_obj' : cartao_obj,
+        'compras_cartao':compras_cartao,
+        'mes_atual_str':mes_atual_str,
+        'total_saldo':total_saldo,
+        'total_compras':total_compras,
+    }
+    
+    html = render(request, 'extrato/extrato_cartao.html', context)
+
+    # Crie um buffer BytesIO para armazenar o PDF
+    result = BytesIO()
+
+    # Gerar o PDF a partir do HTML usando a biblioteca xhtml2pdf
+    pdf = pisa.pisaDocument(BytesIO(html.content), dest=result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return HttpResponse('Erro ao gerar PDF', status=500)  
+   
 def extrato_pdf(request):
     # Renderize a página HTML que deseja transformar em PDF
     num_mes = datetime.datetime.today().month

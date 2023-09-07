@@ -1,0 +1,80 @@
+{% load static %}
+
+{% block content %}
+<meta charset="UTF-8">
+<html lang="en">
+<title> Extrato Compras </title>
+
+<div class="container mt-4 text-center">
+    <div class="card ">
+
+        <div class="card-header">
+            <div class="row justify-content-end">
+                <div class="col-9">
+                    <h3 class="ms-2 linha-horizontal"> {{user }} - Conta Atual </h3>
+                </div>
+                <div class="col-3">
+                    <i style="font-size:24px; margin-left:48%" class="bi bi-bank"> Financs $ </i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .linha-horizontal {
+            border-bottom: 1px solid #000; /* Define a cor e a largura da linha horizontal */
+        }
+    .linha-vertical {
+        border-left: 1px solid #000; /* Define a cor e a largura da linha vertical */
+        padding-left: 5px; /* Adiciona um pequeno espaço entre a borda e o conteúdo da célula */
+    }
+</style>
+
+    <div class="row">
+        <div class="col-md-4">
+            <h2 class="text-center">Compras no Crédito</h2>
+            <div class="card mt-3">
+                <h4 class="card-title mt-3 text-center">Mês de: {{ mes_atual_str }}</h4>
+                <table class="table table-hover" id="compras_extrato" style="border-radius: 10px;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="linha-vertical">Nome</th>
+                            <th class="linha-vertical">Valor</th>
+                            <th class="linha-vertical">Data</th>
+                            <th class="linha-vertical">Cartão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if not compras_cartao %}
+                            <tr>
+                                <td></td>
+                                <td>Nenhuma</td>
+                                <td>Compra</td>
+                                <td>Registrada</td>
+                                <td></td>
+                            </tr>
+                        {% else %}
+                            {% for c in compras_cartao %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'delete' c.id 'cartoes' %}">
+                                            <i class="text-danger bi bi-x-square"></i>
+                                        </a>
+                                    </td>
+                                    <td class="text-danger linha-vertical"><strong>{{ c.nome }}</strong></td>
+                                    <td class="text-danger linha-vertical"><strong>{{ c.valor }}</strong></td>
+                                    <td class="text-danger linha-vertical"><strong>{{ c.data|date:'d/m/y' }}</strong></td>
+                                    <td class="text-danger linha-vertical"><strong>{{ c.cartao_credito }}</strong></td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+                <p>Saldo dos Cartões: <strong> {{ total_saldo }} </strong> </p>
+               
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

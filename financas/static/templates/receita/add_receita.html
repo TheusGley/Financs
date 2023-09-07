@@ -18,6 +18,14 @@
                 
                 
                   {{form.as_p}}
+                  <label for="meuCheckbox">Marque se a Receita for todo mês </label>
+                  <input type="checkbox" id="meuCheckbox" class="form-check" name="meuCheckbox" value="false"> 
+                 
+
+                  <label for="receita_valor"> Valor: </label>
+
+                  <input name="receita_valor" id="receita_valor" class="form-control input mb-4" style="max-width:300; text-align: left" placeholder="Ex 00,00"> 
+                  
                 <button type="submit" class="btn btn-primary text-white" >Adicionar Receita </button>
                 <a href="{%url 'receita' request.user.id %}" class="btn btn-danger text-white" >Cancelar</a>
 
@@ -30,5 +38,26 @@
     </div>
 </div>
 
+<script>
+  // Obtenha o elemento do checkbox pelo ID
+  var checkbox = document.getElementById("meuCheckbox");
+
+  // Valor original do checkbox
+  var valorOriginal = checkbox.checked;
+
+  // Adicione um ouvinte de evento para detectar mudanças no estado do checkbox
+  checkbox.addEventListener("change", function() {
+    // Se o checkbox for marcado, defina o valor como verdadeiro
+    if (checkbox.checked) {
+      checkbox.value = "true";
+      console.log("true")
+    } else {
+      // Se o checkbox for desmarcado, restaure o valor original
+      checkbox.value = valorOriginal.toString();
+      console.log("false")
+
+    }
+  });
+</script>
 
 {%endblock%}

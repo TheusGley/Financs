@@ -41,7 +41,7 @@ class Despesa (models.Model):
     valor = models.DecimalField(max_digits=10, decimal_places=2)
     prioridade = models.CharField(max_length=50, choices=Prioridades)
     data_entrada = models.DateField()
-    data_vencimento = models.DateField()
+    data_vencimento = models.DateField(null=True)
     parcelas = models.IntegerField(blank=True, null=True)
     status = models.CharField(max_length=50, choices=Status)
     data_paga = models.DateField()
@@ -106,5 +106,5 @@ class Compras_cartao (models.Model):
  
     
     def __str__(self):
+        
        return str(self.nome)
-    

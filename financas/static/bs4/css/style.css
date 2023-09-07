@@ -19,6 +19,8 @@ body {
     margin: 0;
     padding: 0;
     height: 100%; /* Apenas para simular um conteúdo longo */
+    width: 100%;
+
     position: relative; /* Necessário para o posicionamento do rodapé */
   }
   .content {
@@ -27,4 +29,6 @@ body {
   span { 
     font-family:'Times New Roman', Times, serif;
   }
+
+
   
