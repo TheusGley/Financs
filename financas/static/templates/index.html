@@ -214,19 +214,20 @@
 
                     {%if not despesa_total  and receita_total >= 1%}
                     data: [{{ receita_total|floatformat:2 }}],
-                            backgroundColor: ['green']
+                            backgroundColor: ['rgb(112, 255, 99)']
                         }]
                     };
                
                     {%elif not receita_total  and despesa_total  >= 1 %}
                     data:[{{  despesa_total|floatformat:2  }}],
-                            backgroundColor: ['red']
+                            backgroundColor: ['rgb(252, 69, 109)']
                         }]
                     };
+                    
                 
                     {% else %}
                     data:[{{  despesa_total|floatformat:2  }}, {{ receita_total|floatformat:2 }}],
-                            backgroundColor: ['red', 'green']
+                            backgroundColor: ['rgb(252, 69, 109)', 'rgb(112, 255, 99)']
                         }]
                     };
                

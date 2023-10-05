@@ -1,0 +1,101 @@
+
+{%block cartao%}
+
+<div class="col-md-4">
+    <h2 class="text-center">Compras no Crédito</h2>
+    <div class="card mt-3">
+        <h4 class="card-title mt-3 text-center ">Mês de: {{mes_atual}}     </h4>
+        <table class="table table-hover " id ="scrollable-table"style="border-radius : 10px;">
+            <thead >
+                <tr>               
+                    <th> </th>
+                    <th>Nome </th>
+                    <th>Valor </th>
+                    <th>Data </th>
+                    <th>Cartão </th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {%if not compras_cartao %}
+                <tr> 
+                <td> </td>
+                <td>Nenhuma </td>  
+                <td>Compra</td>  
+                <td>Registrada </td>  
+                <td> </td>  
+                </tr> 
+            
+            </tbody>
+
+        </table>
+        <div class="row">
+            <div class="col">
+                <a href="{%url 'add_compra' request.user.id  %}" class="btn btn-danger text-white  px-lg-5 m-3" > Adicionar Compra </a>
+           
+                <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'compra_mes' request.user.id num_mes %} ?acao=ante"><i class="bi bi-arrow-left-circle-fill"></i>    </a>
+                <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'compra_mes' request.user.id num_mes %} ?acao=prox"><i class="bi bi-arrow-right-circle-fill"></i>    </a>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+
+    
+        {%else%}
+
+
+
+        {%for c in compras_cartao %}
+
+            <tr> 
+            <td> <a href="{%url 'delete' c.id  'cartoes' %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
+            <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_compras' c.id  %}" >{{c.nome}}  </a></td>
+            
+                <td class="text-danger"> <strong>{{c.valor}}</strong></td>
+                <td class="text-danger"> <strong>{{c.data|date:'d/m/y'}}</strong></td>  
+                <td class="text-danger"> <strong>{{c.cartao_credito}}</strong></td>  
+
+
+
+                
+                </tr>
+        {%endfor%} 	
+            
+            </tbody>
+
+        </table>
+        <div class='row'>
+
+        <div class='col'>
+        <p> Saldo dos Cartões: {{total_saldo}} <p>
+
+        </div>
+        <div class="col">
+               <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'compra_mes' request.user.id num_mes %} ?acao=ante"><i class="bi bi-arrow-left-circle-fill"></i>    </a>
+               <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'compra_mes' request.user.id num_mes %} ?acao=prox"><i class="bi bi-arrow-right-circle-fill"></i>    </a>
+            </div>
+        
+
+    </div>
+    
+
+        <div class='col'>
+
+            <a href="{%url 'add_compra' request.user.id  %}" class="btn btn-danger text-white  px-lg-5" > Adicionar Compra </a>
+        </div>
+        <div class="col">
+            <a href="{%url 'extrato_compras' request.user.id  %}" target="_blank " class="btn btn-primary text-white  px-lg-5" > Abrir extrato </a>
+
+        </div>
+
+
+          
+    </div>
+   
+</div>
+
+{%endif%}
+
+{%endblock cartao%}

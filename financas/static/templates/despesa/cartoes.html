@@ -1,17 +1,21 @@
-{% extends 'base.html' %}
+{% extends 'base.html'%}
+
+
 {% load static %}
 
 {% block content %}
+
 <div class="container mt-4 text-center">
     <div class="row">
         <div class="col-md-4">
-            <h2 class="text-center">CartÃ£o de CrÃ©dito</h2>
+            <h2 class="text-center">Cartão de Crédito</h2>
                 <div class="card mt-3">
-                <h4 class="card-title mt-3 text-center ">MÃªs de: {{mes_atual}}     </h4>
+                <h4 class="card-title mt-3 text-center "> </h4>
 
                     <table class="table table-hover" id="compras_extrato" style="border-radius : 10px;">
                         <thead class=>
-                            <tr>                      
+                            <tr>      
+                                <th> </th>                
                                 <th>Marca </th>
                                 <th>Saldo </th>
                                 <th>Limite </th>
@@ -19,9 +23,21 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {%if not cartao_obj %}
+                            <tr> 
+                            <th></th>
+                            <th>Nenhum</th>                
+                            <th>Cartão </th>
+                            <th>Cadastrado</th>
+                            </tr> 
+                            {%else%}
+                            {%endif%}
+
                         {%for c in cartao_obj %}
                 
                             <tr> 
+                            <td> <a href="{%url 'delete' c.id 'cartao' %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
+
                             <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_cartao' c.id %}" >{{c.Marca}}  </a></td>
                                 <td>{{c.saldo_cartao}}</td>  
                                 <td>{{c.limite}}</td>  
@@ -34,7 +50,7 @@
                     </table>
             <div class='row m-lg-2  '>
                     <div class='col px-lg-5'>
-                        <button class="btn btn-primary text-white"  data-toggle="modal" data-target="#myModal"> Adicionar CartÃ£o </button>
+                        <button class="btn btn-primary text-white"  data-toggle="modal" data-target="#myModal"> Adicionar Cartão </button>
 
                     </div>
             </div>
@@ -44,7 +60,7 @@
     <div class="modal-dialog" role="document">
     <div class="modal-content">
         <div class="modal-header">
-        <h5 class="modal-title" id="myModalLabel">Adicionando CrÃ©dito</h5>
+        <h5 class="modal-title" id="myModalLabel">Adicionando Crédito</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
         <span aria-hidden="true">&times;</span>
         </button>
@@ -57,7 +73,7 @@
         </div>
 
         <div class ='p-1'>
-        <button type="submit" class="btn btn-primary text-white" >Adicionar CrÃ©dito </button>
+        <button type="submit" class="btn btn-primary text-white" >Adicionar Crédito </button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
         </div>
         </form>
@@ -69,80 +85,24 @@
 </div> 
             </div>
         </div>
+        {% comment %} Fazer herança {% endcomment %}
+        {%block cartao%}
+        {%include 'despesa\compras.html' %}
+
+        {%endblock cartao%}
+        {% comment %} herança  {% endcomment %}
+            
         <div class="col-md-4">
-            <h2 class="text-center">Compras no Crédito</h2>
+            <h2 class="text-center">Consumo de Crédito</h2>
             <div class="card mt-3">
                 <h4 class="card-title mt-3 text-center ">Mês de: {{mes_atual}}     </h4>
-                <table class="table table-hover " id ="scrollable-table"style="border-radius : 10px;">
-                    <thead >
-                        <tr>               
-                            <th> </th>
-                            <th>Nome </th>
-                            <th>Valor </th>
-                            <th>Data </th>
-                            <th> Cartão </th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {%if not compras_cartao %}
-                        <tr> 
-                        <td> </td>
-                        <td>Nenhuma </td>  
-                        <td>Compra</td>  
-                        <td>Registrada </td>  
-                        <td> </td>  
-                        </tr> 
-                    
-                    </tbody>
-                    <a href="{%url 'add_compra' request.user.id  %}" class="btn btn-danger text-white  px-lg-5" > Adicionar Compra </a>
-    
-                </table>
+                {% comment %} <canvas id="pie-chart"></canvas> {% endcomment %}
                 
-            </div>
-        </div>
-            
-                {%else%}
-
-
-
-                {%for c in compras_cartao %}
-        
-                    <tr> 
-                    <td> <a href="{%url 'delete' c.id  'cartoes' %}" > <i class=" text-danger bi bi-x-square "></i> </a> </td>
-                    <td><a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'atualizar_compras' c.id  %}" >{{c.nome}}  </a></td>
-                    
-                        <td class="text-danger"> <strong>{{c.valor}}</strong></td>
-                        <td class="text-danger"> <strong>{{c.data|date:'d/m/y'}}</strong></td>  
-                        <td class="text-danger"> <strong>{{c.cartao_credito}}</strong></td>  
-
-
-
-                        
-                        </tr>
-                {%endfor%} 	
-                    
-                    </tbody>
-
-                </table>
-
-                <p> Saldo dos CartÃµes: {{total_saldo}} <p>
-
-                    <a href="{%url 'add_compra' request.user.id  %}" class="btn btn-danger text-white  px-lg-5" > Adicionar Compra </a>
-                    <a href="{%url 'extrato_compras' request.user.id  %}" target="_blank " class="btn btn-primary text-white  px-lg-5" > Abrir extrato </a>
+                    <div style="width: 400px; height: 400px;">
+        <canvas id="myPieChart"></canvas>
+    </div>
 
             </div>
-           
-        </div>
-
-        {%endif%}
-            
-        <div class="col-md-4">
-            <h2 class="text-center">Consumo de CrÃ©dito</h2>
-            <div class="card mt-3">
-                <h4 class="card-title mt-3 text-center ">MÃªs de: {{mes_atual}}     </h4>
-                <canvas id="pie-chart"></canvas>
-   	 </div>
     
             </div>
         </div>
@@ -150,51 +110,32 @@
 </div>
 
 <script>
-
-    <script>
-      
-      
-    document.addEventListener('DOMContentLoaded', function() {
-        var data = {
-
-
-             labels: ['Saldo CartÃµes','Compras feitas'],
-            datasets: [{
-                data: [{{total_saldo}},{{total_compras}}],
-                        backgroundColor: ['blue','red']
-                    }]
-                };
-           
-               
-                
-
-        var ctx = document.getElementById('pie-chart').getContext('2d');
-        var chart = new Chart(ctx, {
-            type: 'pie',
-            data: data,
-            options: {
-                title: {
-                    display: true,
-                    text: 'Meu GrÃ¡fico de Despesas e Receitas',
-                    fontSize: 16,
-                    fontColor: 'black',
-                    fontFamily:'arial black '
-                },
-                elements: {
-                    arc: {
-                        borderWidth: 0
-                    }
-                },
-                legend: {
-                    display: true,
-                    position: 'bottom',
-                    labels: {
-                        fontColor: 'black',
-                        fontSize: 12
-                    }
-                }
+    var data = {
+        labels: ['Compras', 'Saldo', ],
+        datasets: [{
+            data: [{{total_compras}}, {{total_saldo}}, ], // Valores para cada fatia da pizza
+            backgroundColor: [
+                 'rgb(255, 99, 132)',
+                 'rgb(54, 162, 235)',
+            ]
+        }]
+    };
+    
+    // Obtém o contexto do elemento canvas
+    var ctx = document.getElementById('myPieChart').getContext('2d');
+    
+    // Cria o gráfico de pizza
+    var myPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: data,
+        options: {
+            // Opções de personalização (opcional)
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                position: 'top'
             }
-        });
+        }
     });
 
     const table = document.querySelector('#scrollable-table');

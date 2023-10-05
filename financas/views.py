@@ -2,6 +2,8 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.contrib.auth import authenticate, login ,  logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.db.utils import IntegrityError 
+
 from django.db.models import Sum
 import datetime , locale 
 from datetime import date
@@ -28,33 +30,38 @@ from django.utils.encoding import force_str
 
 
 
-def cadastro (request):
-     
+def cadastro (request): 
     if request.user.is_authenticated:
-        id_usuario = request.user.id
-        return redirect('index', id_usuario=id_usuario)
-    elif request.method == 'POST':
+        return redirect('index',request.user.id)  # Você não precisa passar id_usuario, o Django já sabe qual é o usuário autenticado.
+
+    if request.method == 'POST':
         nome_usuario = request.POST['nome_usuario']
-        email_usuario= request.POST['email_usuario']
+        email_usuario = request.POST['email_usuario']
         senha_usuario = request.POST['senha_usuario']
         senha_usuario2 = request.POST['senha_usuario2']
-        if senha_usuario == senha_usuario2 :
+
+        if senha_usuario == senha_usuario2:
             
-            user =  User.objects.create_user(username=nome_usuario,email=email_usuario,password=senha_usuario)
+            try:
+                # Tente criar o usuário usando o model User do Django.
+                user = User.objects.create_user(username=nome_usuario, email=email_usuario, password=senha_usuario)
+
+                # Faça o login do usuário automaticamente após o cadastro.
+                login(request, user)
+
+                return redirect('index', request.user.id)
             
-            id_usuario = request.user.id
-           
-            return redirect('index', id_usuario=id_usuario)
+            except IntegrityError:  # Tratamento específico para violação de restrição única.
+                error_message = 'Nome de usuário ou email já estão em uso.' 
+                return render(request, 'registration/cadastro.html', {'error_message': error_message})
             
         else:
-            error_message = 'As senhas não conferem'
+            error_message = 'As senhas não conferem.'
             return render(request, 'registration/cadastro.html', {'error_message': error_message})
- 
-
     else:
-            error_message = 'Nome de usuário ou senha inválidos'
-            return render(request, 'registration/cadastro.html', {'error_message': error_message})
- 
+        # Este bloco será executado quando a solicitação for um GET.
+        print("conta ja existe")
+        return render(request, 'registration/cadastro.html')
  
 
 def email_senha(request):
@@ -311,23 +318,30 @@ def despesa_page (request,id_usuario,):
                 nova_despesa.save()
                 
     
-    despesa_obj = Despesa.objects.filter(id_usuario=id_usuario)
     mes_atual =  datetime.date.today().month    
     despesa_obj = Despesa.objects.filter(id_usuario=id_usuario, data_vencimento__month=mes_atual)
     num_mes = datetime.datetime.now().month
     desired_locale = Locale('pt_BR')
     data_atual= datetime.datetime.today()
     mes_atual_str = format_date(data_atual, format='MMMM', locale=desired_locale)
-
+    despesas_totais= Despesa.objects.filter(id_usuario=id_usuario, data_vencimento__month=mes_atual, status="Pago")
+    despesas_pendente= Despesa.objects.filter(id_usuario=id_usuario, data_vencimento__month=mes_atual, status="Pendente")
     
+    total_despesas_pe = despesas_pendente.aggregate(total=Sum('valor'))['total']
+    total_despesas_pg = despesas_totais.aggregate(total=Sum('valor'))['total']
+    total_despesas = despesa_obj.aggregate(total=Sum('valor'))['total']
+
     num_mes = datetime.datetime.now().month
     
     
             
     context = { 'despesas':despesa_obj,
                 'mes_atual': mes_atual_str,
-                'num_mes': num_mes 
-        
+                'num_mes': num_mes,
+                'total_despesa_pg':total_despesas_pg,        
+                'total_despesas': total_despesas,
+                'total_despesa_pe': total_despesas_pe,
+                
     }
     
     return render (request, 'despesa/despesa.html', context)
@@ -336,7 +350,6 @@ def despesa_page (request,id_usuario,):
 
 def despesa_mes (request, id_usuario, num_mes):
     acao = request.GET.get("acao")
-    desired_locale = Locale('pt_BR')    
     mes_atual = datetime.datetime.now().month
 
     if acao == 'ante':
@@ -357,15 +370,66 @@ def despesa_mes (request, id_usuario, num_mes):
 
     data_mes = datetime.datetime(1900, int(num_mes) , 1)
     mes_formatado = format_date(data_mes, format='MMMM', locale=Locale('pt_BR'))
+    despesas_totais= Despesa.objects.filter(id_usuario=id_usuario, data_vencimento__month=num_mes, status="Pago")
+    total_despesas_pg = despesas_totais.aggregate(total=Sum('valor'))['total']
+    despesas_pendente= Despesa.objects.filter(id_usuario=id_usuario, data_vencimento__month=num_mes, status="Pendente")
+
+    total_despesas = despesa_obj.aggregate(total=Sum('valor'))['total']
+    total_despesas_pe = despesas_pendente.aggregate(total=Sum('valor'))['total']
 
     context = {
         'despesas': despesa_obj,
         'mes_atual': mes_formatado,
-        'num_mes': int(num_mes) 
+        'num_mes': int(num_mes) ,
+        'total_despesa_pg':total_despesas_pg,        
+        'total_despesas': total_despesas,
+        'total_despesa_pe': total_despesas_pe,
+        
+                
     }
 
     return render(request, 'despesa/despesa.html', context)
 
+
+@login_required
+
+def compra_mes (request, id_usuario, num_mes):
+    acao = request.GET.get("acao")
+    mes_atual = datetime.datetime.now().month
+    cartao_obj= Cartao_credito.objects.filter(id_usuario=id_usuario)
+    
+
+    if acao == 'ante':
+        num_mes = int(num_mes) - 1
+    elif acao == 'prox':
+        num_mes = int(num_mes) + 1
+
+    if int(num_mes)  < 1:
+        return redirect('cartoes', id_usuario)
+
+    if int(num_mes)  > 12:
+        return redirect('cartoes', id_usuario)
+
+    if int(num_mes)  > mes_atual:
+        compras_cartao = Compras_cartao.objects.filter(cartao_credito__in=cartao_obj, data__month=num_mes)
+    else:
+        compras_cartao = Compras_cartao.objects.filter(cartao_credito__in=cartao_obj, data__month=num_mes)
+
+    data_mes = datetime.datetime(1900, int(num_mes) , 1)
+    mes_formatado = format_date(data_mes, format='MMMM', locale=Locale('pt_BR'))
+    
+    
+    
+
+    context = {
+        'compras_cartao': compras_cartao,
+        'cartao_obj':cartao_obj,
+        'mes_atual': mes_formatado,
+        'num_mes': int(num_mes) ,
+                
+    }
+
+    return render(request, 'despesa/cartoes.html', context)
 @login_required
 
 def cartoes (request, id_usuario):
@@ -378,7 +442,7 @@ def cartoes (request, id_usuario):
     mes_atual_str = format_date(data_atual, format='MMMM', locale=desired_locale)
     total_saldo = sum(cartao.saldo_cartao for cartao in cartao_obj)
     total_compras = sum(compra.valor for compra in compras_cartao)
-
+    
     
     
     if request.method == 'POST':
@@ -394,7 +458,7 @@ def cartoes (request, id_usuario):
     else:
             form_cartao = CartaoForm()
   
-
+    num_mes = datetime.datetime.now().month
     context = {
         'cartao_obj' : cartao_obj,
         'compras_cartao':compras_cartao,
@@ -402,6 +466,7 @@ def cartoes (request, id_usuario):
         'form_cartao': form_cartao ,
         'total_saldo':total_saldo,
         'total_compras':total_compras,
+        'num_mes':num_mes 
     }
     
         
@@ -501,27 +566,37 @@ def delete(request, id_obj, instance):
     instance_mapping = {
         'despesa': Despesa,
         'receita': Receita,
-        'cartoes': Compras_cartao,
-        'cartao': Cartao_credito,
+        'cartao':  Cartao_credito,
+        'cartoes': Compras_cartao
     }
     
     if instance in instance_mapping:
         model_class = instance_mapping[instance]
         
         try:
-            if instance == 'cartoes':
+            if instance == 'cartao':
                 obj = model_class.objects.get(id=id_obj)
+                compra = Compras_cartao.objects.filter(cartao_credito=obj)
+                compra.delete()
+                obj.delete()
+                return redirect('cartoes', request.user.id)
+                
+            elif instance == 'cartoes':
+                obj = model_class.objects.get(id=id_obj)
+                cartao = obj.cartao_credito
+                cartao.saldo_cartao += obj.valor
+                cartao.save()
+                obj.delete()
+                return redirect('cartoes', request.user.id)
+                
             else:
                 obj = model_class.objects.get(id_usuario=id_usuario, id=id_obj)
-            obj.delete()
-            return redirect(instance, request.user.id)
+                obj.delete()
+                return redirect('cartoes', request.user.id)
         except model_class.DoesNotExist:
-            # Lida com o caso em que o objeto não é encontrado
+            print("model_class nao existe")
             pass
-    
-    # Redirecionamento padrão em caso de falha
     return redirect(instance, request.user.id )
-
         
 
    
@@ -544,7 +619,6 @@ def add_despesa (request, id_usuario):
                 despesa.id_usuario = request.user
                 despesa.valor = valor_compra_decimal
                 if data_vencimento_post == "" or data_vencimento_post == None:
-                    print("dataa_vencimento")
                     
                     despesa.data_vencimento = data_atual
                     despesa.data_paga = data_atual

@@ -155,13 +155,26 @@
           </table>
           <div class='row'>
             <div class='col'>
-          
-              <a class="btn btn-primary text-white" href="{%url 'add_despesa' request.user.id %}">Adicionar Despesa </a>
+
+                <a class="btn btn-primary text-white" href="{%url 'add_despesa' request.user.id %}">Adicionar Despesa </a>
+
+            </div>
+
+            <div class="col">
+              <p class="text-success"> Despesas Pagas : {{total_despesa_pg|floatformat:2}} </p>
+              
+            </div>   <div class="col">
+
+              <p class="text-danger"> Despesas Pendentes : {{total_despesa_pe|floatformat:2}}</p>   
+            </div>
+            <div class="col">
+              <p> Total de Despesas : {{total_despesas|floatformat:2}}</p>   
+              
             </div>
            
-            <div class='col-3'>
-              <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'despesa_mes' request.user.id num_mes %} ?acao=ante"><i class="bi bi-arrow-left-circle-fill"></i> Mês Anterior  </a>
-              <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'despesa_mes' request.user.id num_mes %} ?acao=prox"> Proximo Mês <i class="bi bi-arrow-right-circle-fill"></i> </a>
+            <div class='col-2'>
+              <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'despesa_mes' request.user.id num_mes %} ?acao=ante"><i class="bi bi-arrow-left-circle-fill"></i>  Anterior  </a>
+              <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="{%url 'despesa_mes' request.user.id num_mes %} ?acao=prox"> Proximo  <i class="bi bi-arrow-right-circle-fill"></i> </a>
             </div> 
             
           </div>

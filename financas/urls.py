@@ -14,6 +14,7 @@ urlpatterns = [
     path('novousuario/<id_usuario>/', novo_usuario, name='novo_usuario'),
     path('despesa/<id_usuario>',despesa_page, name='despesa'),
     path('despesa/<id_usuario>/<num_mes>',despesa_mes, name='despesa_mes'),
+    path('cartoes/<id_usuario>/<num_mes>',compra_mes, name='compra_mes'),
     path('cartoes/<id_usuario>/',cartoes, name='cartoes'),    
     path('atualizar_compras/<id_compras>/',atualizar_compras, name='atualizar_compras'),    
     path('add_compra/<id_usuario>/',add_compras, name='add_compra'),       
